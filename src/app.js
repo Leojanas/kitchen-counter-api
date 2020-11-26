@@ -4,8 +4,14 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const {NODE_ENV} = require('./config')
+const {CLIENT_ORIGIN} = require('./config');
 
 const app = express()
+app.use(
+  cors({
+      origin: CLIENT_ORIGIN
+  })
+);
 
 const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
