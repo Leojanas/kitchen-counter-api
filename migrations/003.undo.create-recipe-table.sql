@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS recipes;
+DROP TYPE IF EXISTS category;
