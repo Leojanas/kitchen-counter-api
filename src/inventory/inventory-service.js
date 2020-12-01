@@ -1,9 +1,9 @@
 const InventoryService = {
     getInventory(knex){
-        return knex
-            .select('*')
-            .from('inventory')
-            .orderBy('id')
+        return knex('inventory')
+            .join('items', 'inventory.item_id', '=', 'items.id')
+            .select('inventory.id', 'items.item_name', 'inventory.qty', 'items.unit', 'inventory.expiration')
+            .orderBy('inventory.id')
     },
     addInventoryItem(knex, item){
         return knex
@@ -15,10 +15,10 @@ const InventoryService = {
             })
     },
     getInventoryItemById(knex, id){
-        return knex
-            .select('*')
-            .from('inventory')
-            .where('id', id)
+        return knex('inventory')
+            .join('items', 'inventory.item_id', '=', 'items.id')
+            .select('inventory.id', 'items.item_name', 'inventory.qty', 'items.unit', 'inventory.expiration')
+            .where('inventory.id', id)
             .first()
     },
     updateInventoryItem(knex, item, id){

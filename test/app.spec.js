@@ -15,8 +15,8 @@ before('make knex instance', () => {
   app.set('db', db)
 });
 after('disconnect from db', () => db.destroy());
-before('clean the table', () => db.raw('TRUNCATE items, inventory, recipes, recipe_ingredients, recipe_instructions RESTART IDENTITY CASCADE'));
-afterEach('cleanup',() => db.raw('TRUNCATE items, inventory, recipes, recipe_ingredients, recipe_instructions RESTART IDENTITY CASCADE'));
+before('clean the table', () => db.raw('TRUNCATE items, inventory, recipes, recipe_ingredients RESTART IDENTITY CASCADE'));
+afterEach('cleanup',() => db.raw('TRUNCATE items, inventory, recipes, recipe_ingredients RESTART IDENTITY CASCADE'));
 
 
 describe('Inventory Endpoints', () => {
@@ -29,11 +29,27 @@ describe('Inventory Endpoints', () => {
       })
     })
     context('Given inventory items', () => {
-      beforeEach('seed items table', () => {
       const itemsArray = makeItemsArray();
+      beforeEach('seed items table', () => {
       return db.insert(itemsArray).into('items')
       })
       const inventoryArray = makeInventoryArray();
+      const outputArray = [
+        {
+          id: inventoryArray[0].id,
+          item_name: itemsArray[0].item_name,
+          qty: inventoryArray[0].qty,
+          unit: itemsArray[0].unit,
+          expiration: inventoryArray[0].expiration
+        },
+        {
+          id: inventoryArray[1].id,
+          item_name: itemsArray[2].item_name,
+          qty: inventoryArray[1].qty,
+          unit: itemsArray[2].unit,
+          expiration: inventoryArray[0].expiration
+        }
+      ]
       beforeEach('Seed inventory table', () => {
         return db.insert(inventoryArray).into('inventory')
       })
@@ -41,14 +57,14 @@ describe('Inventory Endpoints', () => {
 
         return supertest(app)
           .get('/api/inventory')
-          .expect(200, inventoryArray)
+          .expect(200, outputArray)
       })
     })
-    context('Given an xss attack item', () => {
+    /*context('Given an xss attack item', () => {
       it('Returns the sanitized item', () => {
 
       })
-    })
+    })*/
 
   })
   describe('POST /api/inventory', () => {
@@ -95,16 +111,22 @@ describe('inventory/:id endpoints', () => {
       })
     })
     context('given the item does exist', () => {
+      const itemsArray = makeItemsArray();
       beforeEach('seed items table', () => {
-        const itemsArray = makeItemsArray();
         return db.insert(itemsArray).into('items')
-        })
-        const inventoryArray = makeInventoryArray();
-        beforeEach('Seed inventory table', () => {
-          return db.insert(inventoryArray).into('inventory')
-        })
+      })
+      const inventoryArray = makeInventoryArray();
+      beforeEach('Seed inventory table', () => {
+        return db.insert(inventoryArray).into('inventory')
+      })
       it('should return the item', () => {
-        const item = inventoryArray[0]
+        const item = {
+          id: inventoryArray[0].id,
+          item_name: itemsArray[0].item_name,
+          qty: inventoryArray[0].qty,
+          unit: itemsArray[0].unit,
+          expiration: inventoryArray[0].expiration
+        }
         return supertest(app)
           .get('/api/inventory/1')
           .expect(200, item)
@@ -123,14 +145,14 @@ describe('inventory/:id endpoints', () => {
       })
     })
     context('given the item does exist', () => {
+      const itemsArray = makeItemsArray();
       beforeEach('seed items table', () => {
-        const itemsArray = makeItemsArray();
         return db.insert(itemsArray).into('items')
-        })
-        const inventoryArray = makeInventoryArray();
-        beforeEach('Seed inventory table', () => {
-          return db.insert(inventoryArray).into('inventory')
-        })
+      })
+      const inventoryArray = makeInventoryArray();
+      beforeEach('Seed inventory table', () => {
+        return db.insert(inventoryArray).into('inventory')
+      })
       it('should return 400 if no fields are updated', () => {
         return supertest(app)
           .patch('/api/inventory/1')
@@ -146,12 +168,20 @@ describe('inventory/:id endpoints', () => {
           qty: 8,
           expiration: '2020-12-05T07:00:00.000Z'
         }
-        const inventory = inventoryArray.map(i => {
-          if(i.id === item.id){
-            return item
-          }
-          return i
-        })
+        const inventory = [{
+          id: inventoryArray[0].id,
+          item_name: itemsArray[0].item_name,
+          qty: 8,
+          unit: itemsArray[0].unit,
+          expiration: '2020-12-05T07:00:00.000Z'
+        },
+        {
+          id: inventoryArray[1].id,
+          item_name: itemsArray[2].item_name,
+          qty: inventoryArray[1].qty,
+          unit: itemsArray[2].unit,
+          expiration: inventoryArray[0].expiration
+        }]
         return supertest(app)
           .patch('/api/inventory/1')
           .send({
@@ -178,8 +208,8 @@ describe('inventory/:id endpoints', () => {
       })
     })
     context('given the item does exist', () => {
+      const itemsArray = makeItemsArray();
       beforeEach('seed items table', () => {
-        const itemsArray = makeItemsArray();
         return db.insert(itemsArray).into('items')
         })
         const inventoryArray = makeInventoryArray();
@@ -188,9 +218,13 @@ describe('inventory/:id endpoints', () => {
         })
       it('should delete the item and return 204', () => {
         const item = inventoryArray[0]
-        const inventory = inventoryArray.filter(i => {
-          return i.id !== item.id
-        })
+        const inventory =  [{
+          id: inventoryArray[1].id,
+          item_name: itemsArray[2].item_name,
+          qty: inventoryArray[1].qty,
+          unit: itemsArray[2].unit,
+          expiration: inventoryArray[0].expiration
+        }]
         return supertest(app)
           .delete('/api/inventory/1')
           .expect(204)
