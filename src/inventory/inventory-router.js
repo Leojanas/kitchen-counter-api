@@ -9,8 +9,8 @@ const jsonParser = express.json();
 const sanitizeItem = item => ({
         id: item.id,
         item_name: xss(item.item_name),
-        item_id: item.item_id,
         qty: item.qty,
+        unit: item.unit,
         expiration: item.expiration
     })
 
