@@ -26,19 +26,51 @@ inventoryRouter
         .catch(next)
     })
     .post(jsonParser, (req,res,next) => {
-        const {item_id, qty, expiration} = req.body;
-        if(!item_id || !qty){
+        const {item_name, qty, expiration, unit} = req.body;
+        if(!item_name || !qty){
             return res.status(400).send({
                 error: {message: 'Invalid data'}
             })
         }
-        const item = {item_id, qty, expiration}
-        InventoryService.addInventoryItem(req.app.get('db'), item)
+        const inputItem = {item_name, qty, expiration, unit}
+        InventoryService.getItemByName(req.app.get('db'), item_name)
             .then(item => {
-                res
-                .status(201)
-                .location(path.posix.join(req.originalUrl + `/${item.id}`))
-                .json(item)
+                let item_id;
+                if(!item){
+                    InventoryService.addItem(req.app.get('db'), inputItem)
+                        .then(i => {
+                            item_id = Number(i)
+                            const inventoryItem = {
+                                item_id: item_id,
+                                qty: inputItem.qty,
+                                expiration: inputItem.expiration
+                            }
+                            InventoryService.addInventoryItem(req.app.get('db'), inventoryItem)
+                                .then(item => {
+                                    res
+                                        .status(201)
+                                        .location(path.posix.join(req.originalUrl + `/${item.id}`))
+                                        .json(item)
+                                })
+                                .catch(next)
+                        })
+                        .catch(next) 
+                }else{
+                    item_id = item.id;
+                    const inventoryItem = {
+                        item_id: item_id,
+                        qty: inputItem.qty,
+                        expiration: inputItem.expiration
+                    }
+                    InventoryService.addInventoryItem(req.app.get('db'), inventoryItem)
+                        .then(item => {
+                            res
+                                .status(201)
+                                .location(path.posix.join(req.originalUrl + `/${item.id}`))
+                                .json(item)
+                        })
+                        .catch(next)
+                }
             })
             .catch(next)
     })

@@ -1,4 +1,21 @@
 const InventoryService = {
+    addItem(knex, input){
+        const {item_name, unit} = input;
+        const item = {
+            item_name: item_name,
+            unit: unit
+        }
+        return knex
+            .insert(item)
+            .into('items')
+            .returning('id')
+    },
+    getItemByName(knex, name){
+        return knex('items')
+            .select('*')
+            .where('item_name', name)
+            .first()
+    },
     getInventory(knex){
         return knex('inventory')
             .join('items', 'inventory.item_id', '=', 'items.id')
@@ -9,10 +26,17 @@ const InventoryService = {
         return knex
             .insert(item)
             .into('inventory')
-            .returning('*')
-            .then(rows => {
-                return rows[0]
+            .returning('id')
+            .then(res => {
+                let id = Number(res)
+                return knex('inventory')
+                .join('items', 'inventory.item_id', '=', 'items.id')
+                .select('inventory.id', 'items.item_name', 'inventory.qty', 'items.unit', 'inventory.expiration')
+                .where('inventory.id', id)
+                .first()
             })
+
+
     },
     getInventoryItemById(knex, id){
         return knex('inventory')

@@ -80,10 +80,26 @@ describe('Inventory Endpoints', () => {
           error: {message: 'Invalid data'}
         })
     })
+    it('should add to inventory and create a new item if needed', () => {
+      return supertest(app)
+        .post('/api/inventory')
+        .send({
+          item_name: 'carrots',
+          qty: 4,
+          unit: 'each',
+          expiration: '2020-12-22T07:00:00.000Z'
+        })
+        .expect(201)
+        .expect(res => {
+          expect(res.body).to.eql({id: 1, item_name: 'carrots', qty: 4, unit: 'each', expiration: '2020-12-22T07:00:00.000Z'})
+          expect(res.headers.location).to.eql('/api/inventory/1')
+        })
+    })
     it('should add item to inventory and return item and location', () => {
       const inventoryItem = {
-        item_id: 2,
+        item_name: 'butter',
         qty: 8,
+        unit: 'cups',
         expiration: '2020-12-25T07:00:00.000Z'
       }
       return supertest(app)
@@ -91,7 +107,7 @@ describe('Inventory Endpoints', () => {
         .send(inventoryItem)
         .expect(201)
         .expect(res => {
-          expect(res.body).to.eql({...inventoryItem, id: 1})
+          expect(res.body).to.eql({...inventoryItem, id: 1, unit: 'cups'})
           expect(res.headers.location).to.eql('/api/inventory/1')
         })
     })
@@ -167,7 +183,7 @@ describe('inventory/:id endpoints', () => {
           item_id: 1,
           qty: 8,
           expiration: '2020-12-05T07:00:00.000Z'
-        }
+        }  
         const inventory = [{
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
