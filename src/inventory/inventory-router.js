@@ -8,9 +8,10 @@ const jsonParser = express.json();
 
 const sanitizeItem = item => ({
         id: item.id,
+        item_name: xss(item.item_name),
         item_id: item.item_id,
-        qty: xss(item.qty),
-        expiration: xss(item.expiration)
+        qty: item.qty,
+        expiration: item.expiration
     })
 
 inventoryRouter
@@ -21,7 +22,7 @@ inventoryRouter
             if(items.length === 0){
                 return res.json([])
             }
-            res.json(items)
+            res.json(items.map(item => sanitizeItem(item)))
         })
         .catch(next)
     })
@@ -50,7 +51,7 @@ inventoryRouter
                                     res
                                         .status(201)
                                         .location(path.posix.join(req.originalUrl + `/${item.id}`))
-                                        .json(item)
+                                        .json(sanitizeItem(item))
                                 })
                                 .catch(next)
                         })
@@ -67,7 +68,7 @@ inventoryRouter
                             res
                                 .status(201)
                                 .location(path.posix.join(req.originalUrl + `/${item.id}`))
-                                .json(item)
+                                .json(sanitizeItem(item))
                         })
                         .catch(next)
                 }
@@ -90,7 +91,7 @@ inventoryRouter
             })
     })
     .get((req,res,next) => {
-        res.json(res.item)
+        res.json(sanitizeItem(res.item))
     })
     .patch(jsonParser, (req,res,next) => {
         const {qty, expiration} = req.body;
