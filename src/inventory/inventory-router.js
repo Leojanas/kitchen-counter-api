@@ -12,7 +12,7 @@ const sanitizeItem = item => ({
         qty: item.qty,
         unit: item.unit,
         expiration: item.expiration
-    })
+})
 
 inventoryRouter
     .route('/')

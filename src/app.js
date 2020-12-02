@@ -6,6 +6,7 @@ const helmet = require('helmet')
 const {NODE_ENV} = require('./config')
 const {CLIENT_ORIGIN} = require('./config');
 const inventoryRouter = require('./inventory/inventory-router');
+const recipeRouter = require('./recipes/recipe-router');
 
 const app = express()
 /*app.use(
@@ -23,6 +24,7 @@ app.use(helmet())
 app.use(cors())
 
 app.use('/api/inventory', inventoryRouter)
+app.use('/api/recipes', recipeRouter)
 
 app.get('/', (req,res)=>{
     res.send('Hello, world!')

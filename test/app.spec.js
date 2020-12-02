@@ -3,6 +3,7 @@ const app = require('../src/app');
 const knex = require('knex');
 const makeItemsArray = require('./items.fixtures');
 const makeInventoryArray = require('./inventory.fixtures');
+const makeRecipesArray = require('./recipes.fixtures');
 const { expect } = require('chai');
 
 let db;
@@ -253,3 +254,140 @@ describe('inventory/:id endpoints', () => {
     })
   })
 })
+
+describe.only('recipes endpoints', () => {
+  describe('GET /api/recipes', () => {
+    context('given no recipes', () => {
+      it('should return an empty array', () => {
+        return supertest(app)
+          .get('/api/recipes')
+          .expect(200, [])
+      })
+    })
+    context('given data in recipes', () => {
+      const itemsArray = makeItemsArray();
+      beforeEach('seed items table', () => {
+      return db.insert(itemsArray).into('items')
+      })
+      const inventoryArray = makeInventoryArray();
+      beforeEach('Seed inventory table', () => {
+        return db.insert(inventoryArray).into('inventory')
+      })
+      const recipesArray = makeRecipesArray();
+      const ingredientsArray = [
+        {
+          recipe_id: 1,
+          item_id: 1,
+          qty: 4
+        },
+        {
+          recipe_id: 1,
+          item_id: 2,
+          qty: 1
+        }
+      ];
+      beforeEach('Seed recipes table', () => {
+        return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+      })
+      it('should return a recipes array', () => {
+        const expectedArray = [
+          {
+            id: 1,
+            recipe_name: 'Meatloaf',
+            category: 'main',
+            rating: 4,
+            instructions: 'Step 1: Do this. Step 2: Do that.',
+            ingredients: [
+              {
+                item_name: 'eggs',
+                qty: 4,
+                unit: 'each'
+              },
+              {
+                item_name: 'butter',
+                qty: 1,
+                unit: 'cups'
+              }
+            ]
+          },
+          {
+            id: 2,
+            recipe_name: 'Green Beans',
+            category: 'side',
+            rating: 4,
+            instructions: 'Step 1: Do this. Step 2: Do that.',
+            ingredients: []
+          }
+        ]
+        return supertest(app)
+          .get('/api/recipes')
+          .expect(200, expectedArray)
+      })
+    })
+  })
+  describe('POST /api/recipes', () => {
+    const itemsArray = makeItemsArray();
+    beforeEach('seed items table', () => {
+    return db.insert(itemsArray).into('items')
+    })
+    const inventoryArray = makeInventoryArray();
+    beforeEach('Seed inventory table', () => {
+      return db.insert(inventoryArray).into('inventory')
+    })
+    it('Should return 400 if required fields are missing', () => {
+      return supertest(app)
+        .post('/api/recipes')
+        .send({})
+        .expect(400, {
+          error: {message: 'Invalid data'}
+        })
+    })
+    it('Should save the recipe and return the recipe and location with 201 status', () => {
+      const expResponse = {
+        id: 1,
+        recipe_name: 'Test name',
+        category: 'main',
+        rating: 5,
+        instructions: 'Step 1: Stuff. Step 2: Other Things.',
+        ingredients: [
+          {
+            item_name: 'eggs',
+            qty: 2,
+            unit: 'each'
+          },
+          {
+            item_name: 'butter',
+            qty: 1,
+            unit: 'cups'
+          }
+        ]
+      }
+      return supertest(app)
+        .post('/api/recipes')
+        .send({
+          recipe_name: 'Test name',
+          category: 'main',
+          rating: 5,
+          instructions: 'Step 1: Stuff. Step 2: Other Things.',
+          ingredients: [
+            {
+              item_name: 'eggs',
+              qty: 2,
+              unit: 'each'
+            },
+            {
+              item_name: 'butter',
+              qty: 1,
+              unit: 'cups'
+            }
+          ]
+        })
+        .expect(201, expResponse)
+    })
+  })
+})
+
