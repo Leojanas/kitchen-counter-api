@@ -391,7 +391,7 @@ describe('recipes endpoints', () => {
   })
 })
 
-describe.only('recipes/:id endpoints', () => {
+describe('recipes/:id endpoints', () => {
   it('should respond 404 if id does not exist', () => {
     return supertest(app)
       .get('/api/recipes/45')
@@ -555,6 +555,35 @@ describe.only('recipes/:id endpoints', () => {
               instructions: 'Step 1: Do this. Step 2: Do that.',
               ingredients: [
                 { item_name: 'eggs', qty: 3, unit: 'each' },
+                { item_name: 'butter', qty: 2, unit: 'cups' },
+              ]
+            })
+        })
+    })
+    it('should remove recipe ingredients if needed', () => {
+      return supertest(app)
+        .patch('/api/recipes/1')
+        .send({
+          id: 1,
+          recipe_name: 'Meatloaf 2.0',
+          category: 'main',
+          rating: 5,
+          instructions: 'Step 1: Do this. Step 2: Do that.',
+          ingredients: [
+            { item_name: 'butter', qty: 2, unit: 'cups' },
+          ]
+        })
+        .expect(204)
+        .then(() => {
+          return supertest(app)
+            .get('/api/recipes/1')
+            .expect(200, {
+              id: 1,
+              recipe_name: 'Meatloaf 2.0',
+              category: 'main',
+              rating: 5,
+              instructions: 'Step 1: Do this. Step 2: Do that.',
+              ingredients: [
                 { item_name: 'butter', qty: 2, unit: 'cups' },
               ]
             })

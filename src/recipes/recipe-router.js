@@ -120,18 +120,17 @@ recipeRouter
         })
         Promise.all(promises)
             .then(results => {
-                let promises = []
-                for(let i=0;i<results.length;i++){
-                    promises.push(RecipeService.updateRecipeIngredients(req.app.get('db'), results[i], req.params.id))
-                }
-                Promise.all(promises) 
-                    .then(()=> {
+                RecipeService.deleteRecipeIngredients(req.app.get('db'), req.params.id)
+                    .then(() => {
+                        RecipeService.addRecipeIngredients(req.app.get('db'), results, req.params.id)
+                            .then(()=> {
                         RecipeService.updateRecipe(req.app.get('db'), recipe, req.params.id)
                             .then(() => {
                                 return res.status(204).end()
                             })
                     })
                     .catch(next)
+                })
             })
  
     })
