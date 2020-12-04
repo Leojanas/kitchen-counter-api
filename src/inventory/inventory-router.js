@@ -110,7 +110,7 @@ inventoryRouter
     .delete((req,res,next) => {
         InventoryService.deleteInventoryItem(req.app.get('db'), req.params.id)
             .then(() => {
-                res.status(204).end()
+                return res.status(204).end()
             })
     })
 

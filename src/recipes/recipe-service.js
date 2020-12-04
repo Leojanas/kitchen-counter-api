@@ -14,6 +14,32 @@ const RecipeService = {
     },
     addRecipeIngredients(knex, ingredients){
         return knex.insert(ingredients).into('recipe_ingredients')
+    },
+    updateRecipeIngredients(knex, ingredient, id){
+        return knex('recipe_ingredients')
+            .where({'recipe_id': id, 'item_id': ingredient.item_id})
+            .update(ingredient)
+    },
+    updateRecipe(knex, recipe, id){
+        return knex('recipes')
+            .where('id', id)
+            .update(recipe)
+    },
+    getRecipeById(knex, id){
+        return knex('recipes')
+            .select('*')
+            .where('id', id)
+            .first()
+    },
+    deleteRecipe(knex, id){
+        return knex('recipes')
+            .where('id', id)
+            .delete()
+    },
+    deleteRecipeIngredients(knex, id){
+        return knex('recipe_ingredients')
+            .where('recipe_id', id)
+            .delete()
     }
 }
 

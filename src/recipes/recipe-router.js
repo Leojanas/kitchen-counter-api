@@ -20,9 +20,6 @@ recipeRouter
     .route('/')
     .get((req,res,next) => {
         RecipeService.getRecipes(req.app.get('db'))
-            .then(recipes => {
-                return recipes
-            })
             .then((recipes) => {
                 if(recipes.length === 0){
                     return res.json([])
@@ -80,5 +77,73 @@ recipeRouter
 
 
     })
+
+recipeRouter
+    .route('/:id')
+    .all((req,res,next) => {
+        RecipeService.getRecipeById(req.app.get('db'), req.params.id)
+        .then(recipe => {
+            if(!recipe){
+                return res.status(404).end()
+            }
+            res.recipe = recipe
+            next()
+        })
+    })
+    .get((req,res,next) => {
+        RecipeService.getIngredientsByRecipe(req.app.get('db'), res.recipe.id)
+            .then((ingredients) => {
+                res.recipe.ingredients = ingredients;
+                return res.status(200).json(res.recipe)
+            })
+    })
+    .patch(jsonParser, (req,res,next) => {
+        let recipe = req.body;
+        if(!recipe.recipe_name){
+            return res.status(400).json({
+                error: {message: 'Must update at least one field'}
+            })
+        }
+        let ingredients = recipe.ingredients;
+        delete recipe.ingredients;
+        let promises = ingredients.map(ingredient => {
+            return InventoryService.getItemByName(req.app.get('db'), ingredient.item_name)
+                .then((item) => {
+                    let recipeIngredient = {
+                        recipe_id: recipe.id,
+                        item_id: item.id,
+                        qty: ingredient.qty
+                    };
+                    return recipeIngredient
+                })
+
+        })
+        Promise.all(promises)
+            .then(results => {
+                let promises = []
+                for(let i=0;i<results.length;i++){
+                    promises.push(RecipeService.updateRecipeIngredients(req.app.get('db'), results[i], req.params.id))
+                }
+                Promise.all(promises) 
+                    .then(()=> {
+                        RecipeService.updateRecipe(req.app.get('db'), recipe, req.params.id)
+                            .then(() => {
+                                return res.status(204).end()
+                            })
+                    })
+                    .catch(next)
+            })
+ 
+    })
+    .delete((req,res,next) => {
+        RecipeService.deleteRecipeIngredients(req.app.get('db'), req.params.id)
+            .then(() => {
+                RecipeService.deleteRecipe(req.app.get('db'), req.params.id)
+                .then(() => {
+                    return res.status(204).end()
+                })
+            })
+    })
+
 
 module.exports = recipeRouter;

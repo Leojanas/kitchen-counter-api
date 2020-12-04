@@ -20,7 +20,7 @@ before('clean the table', () => db.raw('TRUNCATE items, inventory, recipes, reci
 afterEach('cleanup',() => db.raw('TRUNCATE items, inventory, recipes, recipe_ingredients RESTART IDENTITY CASCADE'));
 
 
-describe('Inventory Endpoints', () => {
+describe('inventory Endpoints', () => {
   describe('GET /api/inventory', () => {
     context('Given no inventory items', () => {
       it('Returns 200 and an empty array', () => {
@@ -255,7 +255,7 @@ describe('inventory/:id endpoints', () => {
   })
 })
 
-describe.only('recipes endpoints', () => {
+describe('recipes endpoints', () => {
   describe('GET /api/recipes', () => {
     context('given no recipes', () => {
       it('should return an empty array', () => {
@@ -391,3 +391,174 @@ describe.only('recipes endpoints', () => {
   })
 })
 
+describe.only('recipes/:id endpoints', () => {
+  it('should respond 404 if id does not exist', () => {
+    return supertest(app)
+      .get('/api/recipes/45')
+      .expect(404)
+  })
+  describe('GET /api/recipes/:id', () => {
+    const itemsArray = makeItemsArray();
+    beforeEach('seed items table', () => {
+    return db.insert(itemsArray).into('items')
+    })
+    const inventoryArray = makeInventoryArray();
+    beforeEach('Seed inventory table', () => {
+      return db.insert(inventoryArray).into('inventory')
+    })
+    const recipesArray = makeRecipesArray();
+    const ingredientsArray = [
+      {
+        recipe_id: 1,
+        item_id: 1,
+        qty: 4
+      },
+      {
+        recipe_id: 1,
+        item_id: 2,
+        qty: 1
+      }
+    ];
+    beforeEach('Seed recipes table', () => {
+      return db.insert(recipesArray).into('recipes')
+        .then(() => {
+          return db.insert(ingredientsArray)
+          .into('recipe_ingredients')
+        })
+    })
+    it('should retrieve the recipe if it exists', () => {
+      return supertest(app)
+        .get('/api/recipes/1')
+        .expect(200, {
+          id: 1,
+          recipe_name: 'Meatloaf',
+          category: 'main',
+          rating: 4,
+          instructions: 'Step 1: Do this. Step 2: Do that.',
+          ingredients: [
+            { item_name: 'eggs', qty: 4, unit: 'each' },
+            { item_name: 'butter', qty: 1, unit: 'cups' }
+          ]
+        })
+    })
+  })
+
+  describe('DELETE /api/recipes/:id', () => {
+    const itemsArray = makeItemsArray();
+    beforeEach('seed items table', () => {
+    return db.insert(itemsArray).into('items')
+    })
+    const inventoryArray = makeInventoryArray();
+    beforeEach('Seed inventory table', () => {
+      return db.insert(inventoryArray).into('inventory')
+    })
+    const recipesArray = makeRecipesArray();
+    const ingredientsArray = [
+      {
+        recipe_id: 1,
+        item_id: 1,
+        qty: 4
+      },
+      {
+        recipe_id: 1,
+        item_id: 2,
+        qty: 1
+      }
+    ];
+    beforeEach('Seed recipes table', () => {
+      return db.insert(recipesArray).into('recipes')
+        .then(() => {
+          return db.insert(ingredientsArray)
+          .into('recipe_ingredients')
+        })
+    })
+    it('should delete the recipe and return 204', () => {
+      return supertest(app)
+        .delete('/api/recipes/1')
+        .expect(204)
+        .then(() => {
+          return supertest(app)
+            .get('/api/recipes')
+            .expect(200, [  {
+              id: 2,
+              recipe_name: 'Green Beans',
+              category: 'side',
+              rating: 4,
+              instructions: 'Step 1: Do this. Step 2: Do that.',
+              ingredients: []
+            }
+          ])
+        })
+    })
+  })
+
+  describe('PATCH /api/recipes/:id', () => {
+    const itemsArray = makeItemsArray();
+    beforeEach('seed items table', () => {
+    return db.insert(itemsArray).into('items')
+    })
+    const inventoryArray = makeInventoryArray();
+    beforeEach('Seed inventory table', () => {
+      return db.insert(inventoryArray).into('inventory')
+    })
+    const recipesArray = makeRecipesArray();
+    const ingredientsArray = [
+      {
+        recipe_id: 1,
+        item_id: 1,
+        qty: 4
+      },
+      {
+        recipe_id: 1,
+        item_id: 2,
+        qty: 1
+      }
+    ];
+    beforeEach('Seed recipes table', () => {
+      return db.insert(recipesArray).into('recipes')
+        .then(() => {
+          return db.insert(ingredientsArray)
+          .into('recipe_ingredients')
+        })
+    })
+    it('should return 400 if no update is sent', () => {
+      return supertest(app)
+        .patch('/api/recipes/1')
+        .send({})
+        .expect(400, {
+          error: {message: 'Must update at least one field'}
+        })
+    })
+    it('should return 204 and update the recipe', () => {
+      return supertest(app)
+        .patch('/api/recipes/1')
+        .send({
+          id: 1,
+          recipe_name: 'Meatloaf 2.0',
+          category: 'main',
+          rating: 5,
+          instructions: 'Step 1: Do this. Step 2: Do that.',
+          ingredients: [
+            { item_name: 'eggs', qty: 3, unit: 'each' },
+            { item_name: 'butter', qty: 2, unit: 'cups' },
+          ]
+        })
+        .expect(204)
+        .then(() => {
+          return supertest(app)
+            .get('/api/recipes/1')
+            .expect(200, {
+              id: 1,
+              recipe_name: 'Meatloaf 2.0',
+              category: 'main',
+              rating: 5,
+              instructions: 'Step 1: Do this. Step 2: Do that.',
+              ingredients: [
+                { item_name: 'eggs', qty: 3, unit: 'each' },
+                { item_name: 'butter', qty: 2, unit: 'cups' },
+              ]
+            })
+        })
+    })
+  })
+})
