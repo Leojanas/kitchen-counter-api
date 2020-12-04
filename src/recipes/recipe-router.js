@@ -68,9 +68,15 @@ recipeRouter
             .then(results => {
             RecipeService.addRecipeIngredients(req.app.get('db'), results)
             .then(() => {
-                input.id = results[0].recipe_id;
-                input.ingredients = ingredients;
-                return res.status(201).json(input)
+                RecipeService.getRecipeById(req.app.get('db'), recipe.id)
+                .then(recipe => {
+                    res.recipe = recipe
+                    RecipeService.getIngredientsByRecipe(req.app.get('db'), res.recipe.id)
+                    .then((ingredients) => {
+                        res.recipe.ingredients = ingredients;
+                        return res.status(201).json(res.recipe)
+                    })
+                })
             })
         })
         })
@@ -110,7 +116,7 @@ recipeRouter
             return InventoryService.getItemByName(req.app.get('db'), ingredient.item_name)
                 .then((item) => {
                     let recipeIngredient = {
-                        recipe_id: recipe.id,
+                        recipe_id: req.params.id,
                         item_id: item.id,
                         qty: ingredient.qty
                     };
@@ -126,7 +132,7 @@ recipeRouter
                             .then(()=> {
                         RecipeService.updateRecipe(req.app.get('db'), recipe, req.params.id)
                             .then(() => {
-                                return res.status(204).end()
+                                    return res.status(204).end()
                             })
                     })
                     .catch(next)

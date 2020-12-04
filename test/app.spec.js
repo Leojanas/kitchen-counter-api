@@ -533,7 +533,6 @@ describe('recipes/:id endpoints', () => {
       return supertest(app)
         .patch('/api/recipes/1')
         .send({
-          id: 1,
           recipe_name: 'Meatloaf 2.0',
           category: 'main',
           rating: 5,
