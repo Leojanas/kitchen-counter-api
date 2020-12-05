@@ -56,27 +56,32 @@ recipeRouter
                 return InventoryService.getItemByName(req.app.get('db'), ingredient.item_name)
                     .then((item) => {
                         if(!item){
-                            InventoryService.addItem(req.app.get('db'), ingredient)
-                            .then((item) => {
-                                let recipeIngredient = {
-                                    recipe_id: recipe.id,
-                                    item_id: item.id,
-                                    qty: ingredient.qty
-                                };
-                                return recipeIngredient
-                            })
+                            return InventoryService.addItem(req.app.get('db'), ingredient)
+                                .then((item) => {
+                                    console.log(item)
+                                    console.log('added item')
+                                    let recipeIngredient = {
+                                        recipe_id: recipe.id,
+                                        item_id: item[0],
+                                        qty: ingredient.qty
+                                    };
+                                    console.log(recipeIngredient)
+                                    return recipeIngredient;
+                                })
+                        }else{
+                            let recipeIngredient = {
+                                recipe_id: recipe.id,
+                                item_id: item.id,
+                                qty: ingredient.qty
+                            };
+                            return recipeIngredient
                         }
-                        let recipeIngredient = {
-                            recipe_id: recipe.id,
-                            item_id: item.id,
-                            qty: ingredient.qty
-                        };
-                        return recipeIngredient
                     })
-    
             })
+            console.log(promises)
             Promise.all(promises)
             .then(results => {
+                console.log(results)
             RecipeService.addRecipeIngredients(req.app.get('db'), results)
             .then(() => {
                 RecipeService.getRecipeById(req.app.get('db'), recipe.id)

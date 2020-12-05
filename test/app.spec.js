@@ -360,9 +360,9 @@ describe('recipes endpoints', () => {
             unit: 'each'
           },
           {
-            item_name: 'butter',
+            item_name: 'beef',
             qty: 1,
-            unit: 'cups'
+            unit: 'pounds'
           }
         ]
       }
@@ -380,9 +380,9 @@ describe('recipes endpoints', () => {
               unit: 'each'
             },
             {
-              item_name: 'butter',
+              item_name: 'beef',
               qty: 1,
-              unit: 'cups'
+              unit: 'pounds'
             }
           ]
         })
