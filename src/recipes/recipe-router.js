@@ -55,6 +55,17 @@ recipeRouter
             let promises = ingredients.map(ingredient => {
                 return InventoryService.getItemByName(req.app.get('db'), ingredient.item_name)
                     .then((item) => {
+                        if(!item){
+                            InventoryService.addItem(req.app.get('db'), ingredient)
+                            .then((item) => {
+                                let recipeIngredient = {
+                                    recipe_id: recipe.id,
+                                    item_id: item.id,
+                                    qty: ingredient.qty
+                                };
+                                return recipeIngredient
+                            })
+                        }
                         let recipeIngredient = {
                             recipe_id: recipe.id,
                             item_id: item.id,
