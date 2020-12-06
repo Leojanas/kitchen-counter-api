@@ -538,7 +538,7 @@ describe('recipes/:id endpoints', () => {
           rating: 5,
           instructions: 'Step 1: Do this. Step 2: Do that.',
           ingredients: [
-            { item_name: 'eggs', qty: 3, unit: 'each' },
+            { item_name: 'beef', qty: 1, unit: 'pounds' },
             { item_name: 'butter', qty: 2, unit: 'cups' },
           ]
         })
@@ -553,7 +553,7 @@ describe('recipes/:id endpoints', () => {
               rating: 5,
               instructions: 'Step 1: Do this. Step 2: Do that.',
               ingredients: [
-                { item_name: 'eggs', qty: 3, unit: 'each' },
+                { item_name: 'beef', qty: 1, unit: 'pounds' },
                 { item_name: 'butter', qty: 2, unit: 'cups' },
               ]
             })

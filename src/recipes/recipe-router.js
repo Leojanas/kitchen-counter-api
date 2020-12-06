@@ -58,14 +58,11 @@ recipeRouter
                         if(!item){
                             return InventoryService.addItem(req.app.get('db'), ingredient)
                                 .then((item) => {
-                                    console.log(item)
-                                    console.log('added item')
                                     let recipeIngredient = {
                                         recipe_id: recipe.id,
                                         item_id: item[0],
                                         qty: ingredient.qty
                                     };
-                                    console.log(recipeIngredient)
                                     return recipeIngredient;
                                 })
                         }else{
@@ -78,10 +75,8 @@ recipeRouter
                         }
                     })
             })
-            console.log(promises)
             Promise.all(promises)
             .then(results => {
-                console.log(results)
             RecipeService.addRecipeIngredients(req.app.get('db'), results)
             .then(() => {
                 RecipeService.getRecipeById(req.app.get('db'), recipe.id)
@@ -131,13 +126,24 @@ recipeRouter
         let promises = ingredients.map(ingredient => {
             return InventoryService.getItemByName(req.app.get('db'), ingredient.item_name)
                 .then((item) => {
+                    if(!item){
+                        return InventoryService.addItem(req.app.get('db'), ingredient)
+                            .then((item) => {
+                                let recipeIngredient = {
+                                    recipe_id: req.params.id,
+                                    item_id: item[0],
+                                    qty: ingredient.qty
+                                };
+                                return recipeIngredient;
+                            })
+                    }else{
                     let recipeIngredient = {
                         recipe_id: req.params.id,
                         item_id: item.id,
                         qty: ingredient.qty
                     };
                     return recipeIngredient
-                })
+                }})
 
         })
         Promise.all(promises)
