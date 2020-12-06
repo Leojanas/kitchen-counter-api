@@ -87,12 +87,11 @@ describe('inventory Endpoints', () => {
         .send({
           item_name: 'carrots',
           qty: 4,
-          unit: 'each',
-          expiration: '2020-12-22T07:00:00.000Z'
+          unit: 'each'
         })
         .expect(201)
         .expect(res => {
-          expect(res.body).to.eql({id: 1, item_name: 'carrots', qty: 4, unit: 'each', expiration: '2020-12-22T07:00:00.000Z'})
+          expect(res.body).to.eql({id: 1, item_name: 'carrots', qty: 4, unit: 'each', expiration: null})
           expect(res.headers.location).to.eql('/api/inventory/1')
         })
     })
@@ -553,8 +552,8 @@ describe('recipes/:id endpoints', () => {
               rating: 5,
               instructions: 'Step 1: Do this. Step 2: Do that.',
               ingredients: [
-                { item_name: 'beef', qty: 1, unit: 'pounds' },
                 { item_name: 'butter', qty: 2, unit: 'cups' },
+                { item_name: 'beef', qty: 1, unit: 'pounds' },
               ]
             })
         })
