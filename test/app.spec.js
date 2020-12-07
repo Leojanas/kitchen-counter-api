@@ -40,15 +40,15 @@ describe('inventory Endpoints', () => {
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
           qty: inventoryArray[0].qty,
-          unit: itemsArray[0].unit,
+          unit: inventoryArray[0].unit,
           expiration: inventoryArray[0].expiration
         },
         {
           id: inventoryArray[1].id,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
-          unit: itemsArray[2].unit,
-          expiration: inventoryArray[0].expiration
+          unit: inventoryArray[1].unit,
+          expiration: inventoryArray[1].expiration
         }
       ]
       beforeEach('Seed inventory table', () => {
@@ -112,7 +112,114 @@ describe('inventory Endpoints', () => {
         })
     })
   })
+  describe('PATCH /api/inventory', () => {
+    beforeEach('seed items table', () => {
+      const itemsArray = makeItemsArray();
+      return db.insert(itemsArray).into('items')
+    })
+    const inventoryArray = makeInventoryArray();
+    beforeEach('Seed inventory table', () => {
+      return db.insert(inventoryArray).into('inventory')
+    })
+    context('given invalid recipe', () => {
+      const recipesArray = makeRecipesArray();
+      const ingredientsArray = [
+        {
+          recipe_id: 1,
+          item_id: 1,
+          qty: 4,
+          unit: 'each'
+        },
+        {
+          recipe_id: 1,
+          item_id: 2,
+          qty: 12,
+          unit: 'cups'
+        }
+      ];
+      beforeEach('Seed recipes table', () => {
+        return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+      })
+      it('should return 400 if no recipe id is in body', () => {
+        return supertest(app)
+          .patch('/api/inventory')
+          .send({})
+          .expect(400, {
+            error: {message: 'Recipe not found'}
+          })
+          .then(() => {
+            return supertest(app)
+              .patch('/api/inventory')
+              .send({recipe_id: 356})
+              .expect(400, {
+                error: {message: 'Recipe not found'}
+              })
+          })
+      })
+      it('should return 400 if recipe ingedient is not in inventory', () => {
+        return supertest(app)
+          .patch('/api/inventory')
+          .send({recipe_id: 1})
+          .expect(400, {
+            error: {message: 'At least one recipe ingredient was not found in inventory'}
+          })
+      })
+    })
+    context('Given a valid recipe', () => {
+      const recipesArray = makeRecipesArray();
+      const ingredientsArray = [
+        {
+          recipe_id: 1,
+          item_id: 1,
+          qty: 4,
+          unit: 'each'
+        },
+        {
+          recipe_id: 1,
+          item_id: 3,
+          qty: 1,
+          unit: 'pints'
+        }
+      ];
+      beforeEach('Seed recipes table', () => {
+        return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+      })
+      const updatedInventory = [
+        {
+          id: 1,
+          item_name: 'eggs',
+          qty: 8,
+          unit: 'each',
+          expiration: '2021-01-05T07:00:00.000Z'
+        },
+        {
+          id: 2,
+          item_name: 'sugar',
+          qty: 6,
+          unit: 'cups',
+          expiration: '2021-01-05T07:00:00.000Z'
+        }
+      
+      ]
+      it('should return 200 and new inventory', () => {
+        return supertest(app)
+          .patch('/api/inventory')
+          .send({recipe_id: 1})
+          .expect(200, updatedInventory)
+      })
+    })
 
+
+
+  })
 })
 
 describe('inventory/:id endpoints', () => {
@@ -140,7 +247,7 @@ describe('inventory/:id endpoints', () => {
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
           qty: inventoryArray[0].qty,
-          unit: itemsArray[0].unit,
+          unit: inventoryArray[0].unit,
           expiration: inventoryArray[0].expiration
         }
         return supertest(app)
@@ -149,11 +256,11 @@ describe('inventory/:id endpoints', () => {
       })
     })
   })
-  describe('PATCH /api/inventory/:id', () => {
+  describe('PUT /api/inventory/:id', () => {
     context('given that the item does not exist', () => {
       it('should return 404 not found', () => {
         return supertest(app)
-          .patch('/api/inventory/45')
+          .put('/api/inventory/45')
           .send({})
           .expect(404, {
             error: {message: 'Item does not exist in inventory'}
@@ -171,7 +278,7 @@ describe('inventory/:id endpoints', () => {
       })
       it('should return 400 if no fields are updated', () => {
         return supertest(app)
-          .patch('/api/inventory/1')
+          .put('/api/inventory/1')
           .send({})
           .expect(400, {
             error: {message: 'Must update at least one field'}
@@ -188,18 +295,18 @@ describe('inventory/:id endpoints', () => {
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
           qty: 8,
-          unit: itemsArray[0].unit,
+          unit: inventoryArray[0].unit,
           expiration: '2020-12-05T07:00:00.000Z'
         },
         {
           id: inventoryArray[1].id,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
-          unit: itemsArray[2].unit,
-          expiration: inventoryArray[0].expiration
+          unit: inventoryArray[1].unit,
+          expiration: inventoryArray[1].expiration
         }]
         return supertest(app)
-          .patch('/api/inventory/1')
+          .put('/api/inventory/1')
           .send({
             qty: 8,
             expiration: '2020-12-05T07:00:00.000Z'
@@ -233,13 +340,12 @@ describe('inventory/:id endpoints', () => {
           return db.insert(inventoryArray).into('inventory')
         })
       it('should delete the item and return 204', () => {
-        const item = inventoryArray[0]
         const inventory =  [{
           id: inventoryArray[1].id,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
-          unit: itemsArray[2].unit,
-          expiration: inventoryArray[0].expiration
+          unit: inventoryArray[1].unit,
+          expiration: inventoryArray[1].expiration
         }]
         return supertest(app)
           .delete('/api/inventory/1')
@@ -277,12 +383,14 @@ describe('recipes endpoints', () => {
         {
           recipe_id: 1,
           item_id: 1,
-          qty: 4
+          qty: 4,
+          unit: 'each'
         },
         {
           recipe_id: 1,
           item_id: 2,
-          qty: 1
+          qty: 1,
+          unit: 'cups'
         }
       ];
       beforeEach('Seed recipes table', () => {
@@ -385,7 +493,11 @@ describe('recipes endpoints', () => {
             }
           ]
         })
-        .expect(201, expResponse)
+        .expect(201) 
+        .expect(res => {
+          expect(res.body).to.eql(expResponse)
+          expect(res.headers.location).to.eql('/api/recipes/1')
+        })
     })
   })
 })
@@ -410,12 +522,14 @@ describe('recipes/:id endpoints', () => {
       {
         recipe_id: 1,
         item_id: 1,
-        qty: 4
+        qty: 4,
+        unit: 'each'
       },
       {
         recipe_id: 1,
         item_id: 2,
-        qty: 1
+        qty: 1,
+        unit: 'cups'
       }
     ];
     beforeEach('Seed recipes table', () => {
@@ -456,12 +570,14 @@ describe('recipes/:id endpoints', () => {
       {
         recipe_id: 1,
         item_id: 1,
-        qty: 4
+        qty: 4,
+        unit: 'each'
       },
       {
         recipe_id: 1,
         item_id: 2,
-        qty: 1
+        qty: 1,
+        unit: 'cups'
       }
     ];
     beforeEach('Seed recipes table', () => {
@@ -491,7 +607,7 @@ describe('recipes/:id endpoints', () => {
     })
   })
 
-  describe('PATCH /api/recipes/:id', () => {
+  describe('PUT /api/recipes/:id', () => {
     const itemsArray = makeItemsArray();
     beforeEach('seed items table', () => {
     return db.insert(itemsArray).into('items')
@@ -505,12 +621,14 @@ describe('recipes/:id endpoints', () => {
       {
         recipe_id: 1,
         item_id: 1,
-        qty: 4
+        qty: 4,
+        unit: 'each'
       },
       {
         recipe_id: 1,
         item_id: 2,
-        qty: 1
+        qty: 1,
+        unit: 'cups'
       }
     ];
     beforeEach('Seed recipes table', () => {
@@ -522,7 +640,7 @@ describe('recipes/:id endpoints', () => {
     })
     it('should return 400 if no update is sent', () => {
       return supertest(app)
-        .patch('/api/recipes/1')
+        .put('/api/recipes/1')
         .send({})
         .expect(400, {
           error: {message: 'Must update at least one field'}
@@ -530,7 +648,7 @@ describe('recipes/:id endpoints', () => {
     })
     it('should return 204 and update the recipe', () => {
       return supertest(app)
-        .patch('/api/recipes/1')
+        .put('/api/recipes/1')
         .send({
           recipe_name: 'Meatloaf 2.0',
           category: 'main',
@@ -560,7 +678,7 @@ describe('recipes/:id endpoints', () => {
     })
     it('should remove recipe ingredients if needed', () => {
       return supertest(app)
-        .patch('/api/recipes/1')
+        .put('/api/recipes/1')
         .send({
           id: 1,
           recipe_name: 'Meatloaf 2.0',

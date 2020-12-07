@@ -1,16 +1,13 @@
 function makeItemsArray() {
     return [
         {
-            item_name: 'eggs',
-            unit: 'each'
+            item_name: 'eggs'
         },
         {
-            item_name: 'butter',
-            unit: 'cups'
+            item_name: 'butter'
         },
         {
-            item_name: 'sugar',
-            unit: 'cups'
+            item_name: 'sugar'
         }
     ]
 }

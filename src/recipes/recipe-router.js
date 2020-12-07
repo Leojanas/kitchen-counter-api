@@ -32,11 +32,8 @@ recipeRouter
                     })
                   })
                   Promise.all(promises).then((results) => {
-                      res.json(results)
+                      res.json(results.map(recipe => sanitizeRecipe(recipe)))
                   })
-
-
-
             })
             .catch(next)
     })
@@ -47,7 +44,6 @@ recipeRouter
                 error: {message: 'Invalid data'}
             })
         }
-
         let ingredients = input.ingredients;
         delete input.ingredients;
         RecipeService.addRecipe(req.app.get('db'), input)
@@ -61,7 +57,8 @@ recipeRouter
                                     let recipeIngredient = {
                                         recipe_id: recipe.id,
                                         item_id: item[0],
-                                        qty: ingredient.qty
+                                        qty: ingredient.qty,
+                                        unit: ingredient.unit
                                     };
                                     return recipeIngredient;
                                 })
@@ -69,30 +66,33 @@ recipeRouter
                             let recipeIngredient = {
                                 recipe_id: recipe.id,
                                 item_id: item.id,
-                                qty: ingredient.qty
+                                qty: ingredient.qty,
+                                unit: ingredient.unit
                             };
                             return recipeIngredient
                         }
                     })
             })
             Promise.all(promises)
-            .then(results => {
-            RecipeService.addRecipeIngredients(req.app.get('db'), results)
-            .then(() => {
-                RecipeService.getRecipeById(req.app.get('db'), recipe.id)
-                .then(recipe => {
-                    res.recipe = recipe
-                    RecipeService.getIngredientsByRecipe(req.app.get('db'), res.recipe.id)
-                    .then((ingredients) => {
-                        res.recipe.ingredients = ingredients;
-                        return res.status(201).json(res.recipe)
-                    })
+                .then(results => {
+                    RecipeService.addRecipeIngredients(req.app.get('db'), results)
+                        .then(() => {
+                            RecipeService.getRecipeById(req.app.get('db'), recipe.id)
+                                .then(recipe => {
+                                    res.recipe = recipe
+                                    RecipeService.getIngredientsByRecipe(req.app.get('db'), res.recipe.id)
+                                        .then((ingredients) => {
+                                            res.recipe.ingredients = ingredients;
+                                            return res
+                                                .status(201)
+                                                .location(path.posix.join(req.originalUrl + `/${res.recipe.id}`))
+                                                .json(res.recipe)
+                                        })
+                                })
+                        })
                 })
             })
-        })
-        })
-
-
+            .catch(next)
     })
 
 recipeRouter
@@ -113,8 +113,9 @@ recipeRouter
                 res.recipe.ingredients = ingredients;
                 return res.status(200).json(res.recipe)
             })
+            .catch(next)
     })
-    .patch(jsonParser, (req,res,next) => {
+    .put(jsonParser, (req,res,next) => {
         let recipe = req.body;
         if(!recipe.recipe_name){
             return res.status(400).json({
@@ -132,7 +133,8 @@ recipeRouter
                                 let recipeIngredient = {
                                     recipe_id: req.params.id,
                                     item_id: item[0],
-                                    qty: ingredient.qty
+                                    qty: ingredient.qty,
+                                    unit: ingredient.unit
                                 };
                                 return recipeIngredient;
                             })
@@ -140,7 +142,8 @@ recipeRouter
                     let recipeIngredient = {
                         recipe_id: req.params.id,
                         item_id: item.id,
-                        qty: ingredient.qty
+                        qty: ingredient.qty,
+                        unit: ingredient.unit
                     };
                     return recipeIngredient
                 }})
@@ -152,15 +155,14 @@ recipeRouter
                     .then(() => {
                         RecipeService.addRecipeIngredients(req.app.get('db'), results, req.params.id)
                             .then(()=> {
-                        RecipeService.updateRecipe(req.app.get('db'), recipe, req.params.id)
-                            .then(() => {
-                                    return res.status(204).end()
+                                RecipeService.updateRecipe(req.app.get('db'), recipe, req.params.id)
+                                    .then(() => {
+                                        return res.status(204).end()
+                                })
                             })
                     })
-                    .catch(next)
-                })
             })
- 
+            .catch(next)
     })
     .delete((req,res,next) => {
         RecipeService.deleteRecipeIngredients(req.app.get('db'), req.params.id)
