@@ -28,16 +28,27 @@ mealplanRouter
         if(item_name){
             InventoryService.getItemByName(req.app.get('db'), item_name)
             .then(item => {
-                let item_id
-                if(item){
-                    item_id = item.id
-                }
+                let item_id;
+                if(!item){
+                    InventoryService.addItem(req.app.get('db'), item_name)
+                        .then(id => {
+                            item_id = id;
+                            let mealplanItem = {item_id, qty, unit};
+                            MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
+                                .then(id => {
+                                        return res.status(201).end()
+                                })
+                                .catch(next)
+                        })
+                }else{
+                item_id = item.id
                 let mealplanItem = {item_id, qty, unit};
                 MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
                     .then(id => {
                             return res.status(201).end()
                     })
                     .catch(next)
+                }
                 })
         }else{
             let mealplanItem = {recipe_id, qty, unit};
