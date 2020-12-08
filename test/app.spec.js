@@ -163,7 +163,7 @@ describe('inventory Endpoints', () => {
               })
           })
       })
-      it('should return 400 if recipe ingedient is not in inventory', () => {
+      it('should return 400 if recipe ingredient is not in inventory', () => {
         return supertest(app)
           .patch('/api/inventory')
           .send({recipe_id: 1})
