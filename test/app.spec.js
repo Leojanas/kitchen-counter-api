@@ -735,14 +735,14 @@ describe('mealplan endpoints', () => {
         .post('/api/mealplan')
         .send({})
         .expect(400, {
-          error: {message: 'Must include an item or recipe id and a quantity'}
+          error: {message: 'Must include an item name or recipe id and a quantity'}
         })
     })
     it('adds the item and returns 201 with no content', () => {
       return supertest(app)
         .post('/api/mealplan')
         .send({
-            item_id: 1,
+            item_name: 'eggs',
             qty: 2,
             unit: 'each'
           })

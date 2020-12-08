@@ -26,18 +26,30 @@ mealplanRouter
                 error: {message: 'Must include an item name or recipe id and a quantity'}
             })
         }
-        InventoryService.getItemByName(req.app.get('db'), item_name)
+        if(item_name){
+            InventoryService.getItemByName(req.app.get('db'), item_name)
             .then(item => {
+                let item_id
                 if(item){
-                    let item_id = item.id
+                    item_id = item.id
                 }
-                let mealplanItem = {recipe_id, item_id, qty, unit};
+                let mealplanItem = {item_id, qty, unit};
                 MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
                     .then(id => {
                             return res.status(201).end()
                     })
                     .catch(next)
                 })
+        }else{
+            let mealplanItem = {recipe_id, qty, unit};
+            MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
+                .then(id => {
+                        return res.status(201).end()
+                })
+                .catch(next)
+        }
+
+
 
     })
     .delete(jsonParser, (req,res,next) => {
