@@ -2,6 +2,7 @@ const express = require('express');
 const xss = require('xss');
 const MealplanService = require('./mealplan-service');
 const path = require('path');
+const InventoryService = require('../inventory/inventory-service');
 const mealplanRouter = express.Router();
 const jsonParser = express.json();
 
@@ -19,18 +20,25 @@ mealplanRouter
             .catch(next)
     })
     .post(jsonParser, (req,res,next) => {
-        const {recipe_id, item_id, qty, unit} = req.body;
-        if((!recipe_id && !item_id) || !qty){
+        const {recipe_id, item_name, qty, unit} = req.body;
+        if((!recipe_id && !item_name) || !qty){
             return res.status(400).json({
-                error: {message: 'Must include an item or recipe id and a quantity'}
+                error: {message: 'Must include an item name or recipe id and a quantity'}
             })
         }
-        let mealplanItem = {recipe_id, item_id, qty, unit};
-        MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
-            .then(id => {
-                    return res.status(201).end()
-            })
-            .catch(next)
+        InventoryService.getItemByName(req.app.get('db'), item_name)
+            .then(item => {
+                if(item){
+                    let item_id = item.id
+                }
+                let mealplanItem = {recipe_id, item_id, qty, unit};
+                MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
+                    .then(id => {
+                            return res.status(201).end()
+                    })
+                    .catch(next)
+                })
+
     })
     .delete(jsonParser, (req,res,next) => {
         const {id} = req.body;
