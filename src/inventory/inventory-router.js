@@ -28,11 +28,14 @@ inventoryRouter
         .catch(next)
     })
     .post(jsonParser, (req,res,next) => {
-        const {item_name, qty, expiration, unit} = req.body;
+        let {item_name, qty, expiration, unit} = req.body;
         if(!item_name || !qty || !unit){
             return res.status(400).send({
                 error: {message: 'Invalid data'}
             })
+        }
+        if(expiration === ""){
+            expiration = null;
         }
         const inputItem = {item_name, qty, expiration, unit}
         InventoryService.getItemByName(req.app.get('db'), item_name)

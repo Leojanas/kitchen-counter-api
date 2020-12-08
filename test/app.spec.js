@@ -89,7 +89,8 @@ describe('inventory Endpoints', () => {
         .send({
           item_name: 'carrots',
           qty: 4,
-          unit: 'each'
+          unit: 'each',
+          expiration: ""
         })
         .expect(201)
         .expect(res => {
