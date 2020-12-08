@@ -4,6 +4,8 @@ const knex = require('knex');
 const makeItemsArray = require('./items.fixtures');
 const makeInventoryArray = require('./inventory.fixtures');
 const makeRecipesArray = require('./recipes.fixtures');
+const makeIngredientsArray = require('./recipe-ingredients.fixtures');
+const makeMealplanArray = require('./mealplan.fixtures');
 const { expect } = require('chai');
 
 let db;
@@ -518,20 +520,7 @@ describe('recipes/:id endpoints', () => {
       return db.insert(inventoryArray).into('inventory')
     })
     const recipesArray = makeRecipesArray();
-    const ingredientsArray = [
-      {
-        recipe_id: 1,
-        item_id: 1,
-        qty: 4,
-        unit: 'each'
-      },
-      {
-        recipe_id: 1,
-        item_id: 2,
-        qty: 1,
-        unit: 'cups'
-      }
-    ];
+    const ingredientsArray = makeIngredientsArray();
     beforeEach('Seed recipes table', () => {
       return db.insert(recipesArray).into('recipes')
         .then(() => {
@@ -566,20 +555,7 @@ describe('recipes/:id endpoints', () => {
       return db.insert(inventoryArray).into('inventory')
     })
     const recipesArray = makeRecipesArray();
-    const ingredientsArray = [
-      {
-        recipe_id: 1,
-        item_id: 1,
-        qty: 4,
-        unit: 'each'
-      },
-      {
-        recipe_id: 1,
-        item_id: 2,
-        qty: 1,
-        unit: 'cups'
-      }
-    ];
+    const ingredientsArray = makeIngredientsArray();
     beforeEach('Seed recipes table', () => {
       return db.insert(recipesArray).into('recipes')
         .then(() => {
@@ -617,20 +593,7 @@ describe('recipes/:id endpoints', () => {
       return db.insert(inventoryArray).into('inventory')
     })
     const recipesArray = makeRecipesArray();
-    const ingredientsArray = [
-      {
-        recipe_id: 1,
-        item_id: 1,
-        qty: 4,
-        unit: 'each'
-      },
-      {
-        recipe_id: 1,
-        item_id: 2,
-        qty: 1,
-        unit: 'cups'
-      }
-    ];
+    const ingredientsArray = makeIngredientsArray();
     beforeEach('Seed recipes table', () => {
       return db.insert(recipesArray).into('recipes')
         .then(() => {
@@ -704,6 +667,104 @@ describe('recipes/:id endpoints', () => {
               ]
             })
         })
+    })
+  })
+})
+
+describe('mealplan endpoints', () => {
+  describe('GET /api/mealplan', () => {
+    context('given an empty mealplan', () => {
+      it('returns 200 and []', () => {
+        return supertest(app)
+          .get('/api/mealplan')
+          .expect(200, {recipes: [], items: []})
+      })
+    })
+    context('given data in mealplan', () => {
+      const itemsArray = makeItemsArray();
+      beforeEach('seed items table', () => {
+      return db.insert(itemsArray).into('items')
+      })
+      const recipesArray = makeRecipesArray();
+      const ingredientsArray = makeIngredientsArray();
+      beforeEach('Seed recipes table', () => {
+        return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+      })
+      const mealplanArray = makeMealplanArray();
+      beforeEach('Seed mealplan table', () => {
+        return db.insert(mealplanArray).into('mealplan')
+      })
+      it('returns both recipes and items', () => {
+        return supertest(app)
+          .get('/api/mealplan')
+          .expect(200, {
+            recipes: [
+              { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
+            ],
+            items: [
+              { id: 2, item_id: 1, qty: 2, unit: 'each' },
+              { id: 3, item_id: 2, qty: 2, unit: 'cups' }
+            ]
+          }
+          )
+      })
+    })
+  })
+
+  describe('POST /api/mealplan', () => {
+    const itemsArray = makeItemsArray();
+    beforeEach('seed items table', () => {
+    return db.insert(itemsArray).into('items')
+    })
+    const recipesArray = makeRecipesArray();
+    const ingredientsArray = makeIngredientsArray();
+    beforeEach('Seed recipes table', () => {
+      return db.insert(recipesArray).into('recipes')
+        .then(() => {
+          return db.insert(ingredientsArray)
+          .into('recipe_ingredients')
+        })
+    })
+    it('returns 400 if invalid body is sent', () => {
+      return supertest(app)
+        .post('/api/mealplan')
+        .send({})
+        .expect(400, {
+          error: {message: 'Must include an item or recipe id and a quantity'}
+        })
+    })
+    it('adds the item and returns 201 with no content', () => {
+      return supertest(app)
+        .post('/api/mealplan')
+        .send({
+            item_id: 1,
+            qty: 2,
+            unit: 'each'
+          })
+        .expect(201)
+        .then(() => {
+          return supertest(app)
+            .get('/api/mealplan')
+            .expect(200, {items: [{id:1, item_id: 1, qty: 2, unit: 'each'}], recipes: []})
+        })
+    })
+    it('adds a recipe and returns 201 with no content', () => {
+      return supertest(app)
+      .post('/api/mealplan')
+      .send({
+          recipe_id: 1,
+          qty: 1
+        })
+      .expect(201)
+      .then(() => {
+        return supertest(app)
+          .get('/api/mealplan')
+          .expect(200, {items: [], recipes: [{id: 1, recipe_id: 1, category: 'main', recipe_name: 'Meatloaf'}]})
+      })
     })
   })
 })

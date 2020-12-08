@@ -4,8 +4,6 @@ const InventoryService = require('./inventory-service');
 const RecipeService = require('../recipes/recipe-service');
 const UnitService = require('./unit-service');
 const path = require('path');
-const { resolve } = require('path');
-
 const inventoryRouter = express.Router();
 const jsonParser = express.json();
 
