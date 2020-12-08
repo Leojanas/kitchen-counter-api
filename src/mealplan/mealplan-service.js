@@ -1,4 +1,9 @@
 const MealplanService = {
+    getMealplanItemById(knex, id){
+        return knex('mealplan')
+            .where('id', id)
+            .select('*')
+    },
     getMealplanRecipes(knex){
         return knex('mealplan')
             .join('recipes', 'mealplan.recipe_id', '=', 'recipes.id')

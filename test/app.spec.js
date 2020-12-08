@@ -767,4 +767,54 @@ describe('mealplan endpoints', () => {
       })
     })
   })
+
+  describe('DELETE /api/mealplan', () => {
+    context('given no items in mealplan', () => {
+      it('should return 400', () => {
+        return supertest(app)
+          .delete('/api/mealplan')
+          .send({})
+          .expect(400, {
+            error: {message: 'Invalid data'}
+          })
+      })
+    })
+    context('given a valid item in mealplan', () => {
+      const itemsArray = makeItemsArray();
+      beforeEach('seed items table', () => {
+      return db.insert(itemsArray).into('items')
+      })
+      const recipesArray = makeRecipesArray();
+      const ingredientsArray = makeIngredientsArray();
+      beforeEach('Seed recipes table', () => {
+        return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+      })
+      const mealplanArray = makeMealplanArray();
+      beforeEach('Seed mealplan table', () => {
+        return db.insert(mealplanArray).into('mealplan')
+      })
+      it('should delete the item and return 204', () => {
+        return supertest(app)
+          .delete('/api/mealplan')
+          .send({id: 2})
+          .expect(204)
+          .then(() => {
+            return supertest(app)
+              .get('/api/mealplan')
+              .expect(200, {
+                recipes: [
+                  { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
+                ],
+                items: [
+                  { id: 3, item_id: 2, qty: 2, unit: 'cups' }
+                ]
+              })
+          })
+      })
+    })
+  })
 })

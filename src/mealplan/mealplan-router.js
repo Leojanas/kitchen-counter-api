@@ -30,7 +30,29 @@ mealplanRouter
         MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
             .then(id => {
                     return res.status(201).end()
+            })
+            .catch(next)
+    })
+    .delete(jsonParser, (req,res,next) => {
+        const {id} = req.body;
+        if(!id){
+            return res.status(400).json({
+                error: {message: 'Invalid data'}
+            })
+        }
+        MealplanService.getMealplanItemById(req.app.get('db'), id)
+            .then(item => {
+                if(!item){
+                    return res.status(400).json({
+                        error: {message: 'Item not found in mealplan'}
+                    })
+                }
+                MealplanService.removeMealplanItemById(req.app.get('db'), id)
+                .then(() => {
+                    return res.status(204).end()
                 })
+            })
+            .catch(next)
     })
 
 module.exports = mealplanRouter;
