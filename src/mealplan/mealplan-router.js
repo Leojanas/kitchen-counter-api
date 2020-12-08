@@ -13,7 +13,6 @@ mealplanRouter
                 MealplanService.getMealplanItems(req.app.get('db'))
                     .then(items => {
                         res.items = items;
-                        console.log({recipes: recipes, items: items})
                         res.status(200).json({recipes: recipes, items: items})
                     })
             })
@@ -40,6 +39,12 @@ mealplanRouter
                 error: {message: 'Invalid data'}
             })
         }
+        if(id === 'all'){
+            MealplanService.clearMealplan(req.app.get('db'))
+                .then(() => {
+                    return res.status(204).end()
+                })
+        }else{
         MealplanService.getMealplanItemById(req.app.get('db'), id)
             .then(item => {
                 if(!item){
@@ -53,6 +58,7 @@ mealplanRouter
                 })
             })
             .catch(next)
+        }
     })
 
 module.exports = mealplanRouter;

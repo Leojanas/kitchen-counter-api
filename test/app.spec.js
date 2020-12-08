@@ -815,6 +815,17 @@ describe('mealplan endpoints', () => {
               })
           })
       })
+      it('should clear the whole mealplan if id is "all"', () => {
+        return supertest(app)
+          .delete('/api/mealplan')
+          .send({id: 'all'})
+          .expect(204)
+          .then(() => {
+            return supertest(app)
+              .get('/api/mealplan')
+              .expect(200, {items: [], recipes: []})
+          })
+      })
     })
   })
 })
