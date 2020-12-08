@@ -190,6 +190,9 @@ inventoryRouter
                 error: {message: 'Must update at least one field'}
             })
         }
+        if(expiration === ""){
+            expiration = null;
+        }
         const item = {id: res.item.id, qty, expiration, unit}
         InventoryService.updateInventoryItem(req.app.get('db'), item, req.params.id)
             .then(() => {

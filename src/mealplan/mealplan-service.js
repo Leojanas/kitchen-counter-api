@@ -1,3 +1,5 @@
+const mealplanRouter = require("./mealplan-router")
+
 const MealplanService = {
     getMealplanItemById(knex, id){
         return knex('mealplan')
@@ -28,8 +30,7 @@ const MealplanService = {
             .del()
     },
     clearMealplan(knex){
-        return knex('mealplan')
-            .del()
+        return knex('mealplan').truncate()
     },
 
 }
