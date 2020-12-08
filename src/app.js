@@ -10,11 +10,6 @@ const recipeRouter = require('./recipes/recipe-router');
 const mealplanRouter = require('./mealplan/mealplan-router');
 
 const app = express()
-app.use(
-  cors({
-      origin: CLIENT_ORIGIN
-  })
-);
 
 const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
@@ -22,7 +17,11 @@ const morganOption = (NODE_ENV === 'production')
 
 app.use(morgan(morganOption))
 app.use(helmet())
-app.use(cors())
+app.use(
+  cors({
+      origin: CLIENT_ORIGIN
+  })
+);
 
 app.use('/api/inventory', inventoryRouter)
 app.use('/api/recipes', recipeRouter)
