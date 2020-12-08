@@ -184,7 +184,7 @@ inventoryRouter
         res.json(sanitizeItem(res.item))
     })
     .put(jsonParser, (req,res,next) => {
-        const {qty, expiration, unit} = req.body;
+        let {qty, expiration, unit} = req.body;
         if(!qty && !expiration && !unit){
             return res.status(400).json({
                 error: {message: 'Must update at least one field'}

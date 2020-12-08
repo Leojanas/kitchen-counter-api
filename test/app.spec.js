@@ -299,7 +299,7 @@ describe('inventory/:id endpoints', () => {
           item_name: itemsArray[0].item_name,
           qty: 8,
           unit: inventoryArray[0].unit,
-          expiration: '2020-12-05T07:00:00.000Z'
+          expiration: null
         },
         {
           id: inventoryArray[1].id,
@@ -312,7 +312,7 @@ describe('inventory/:id endpoints', () => {
           .put('/api/inventory/1')
           .send({
             qty: 8,
-            expiration: '2020-12-05T07:00:00.000Z'
+            expiration: ''
           })
           .expect(204)
           .then(() => {
