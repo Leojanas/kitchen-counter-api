@@ -12,8 +12,9 @@ const MealplanService = {
     },
     getMealplanItems(knex){
         return knex('mealplan')
-            .select('id', 'item_id', 'qty', 'unit')
-            .whereNotNull('item_id')
+            .join('items', 'mealplan.item_id', '=', 'items.id')
+            .select('mealplan.id', 'items.item_name', 'mealplan.qty', 'mealplan.unit')
+            .whereNotNull('mealplan.item_id')
     },
     addMealplanItem(knex, item){
         return knex

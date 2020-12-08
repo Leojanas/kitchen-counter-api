@@ -707,8 +707,8 @@ describe('mealplan endpoints', () => {
               { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
             ],
             items: [
-              { id: 2, item_id: 1, qty: 2, unit: 'each' },
-              { id: 3, item_id: 2, qty: 2, unit: 'cups' }
+              { id: 2, item_name: 'eggs', qty: 2, unit: 'each' },
+              { id: 3, item_name: 'butter', qty: 2, unit: 'cups' }
             ]
           }
           )
@@ -750,7 +750,7 @@ describe('mealplan endpoints', () => {
         .then(() => {
           return supertest(app)
             .get('/api/mealplan')
-            .expect(200, {items: [{id:1, item_id: 1, qty: 2, unit: 'each'}], recipes: []})
+            .expect(200, {items: [{id:1, item_name: 'eggs', qty: 2, unit: 'each'}], recipes: []})
         })
     })
     it('adds a recipe and returns 201 with no content', () => {
@@ -811,7 +811,7 @@ describe('mealplan endpoints', () => {
                   { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
                 ],
                 items: [
-                  { id: 3, item_id: 2, qty: 2, unit: 'cups' }
+                  { id: 3, item_name: 'butter', qty: 2, unit: 'cups' }
                 ]
               })
           })

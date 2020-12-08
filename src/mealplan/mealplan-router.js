@@ -13,7 +13,6 @@ mealplanRouter
             .then(recipes => {
                 MealplanService.getMealplanItems(req.app.get('db'))
                     .then(items => {
-                        res.items = items;
                         res.status(200).json({recipes: recipes, items: items})
                     })
             })
