@@ -742,7 +742,7 @@ describe('mealplan endpoints', () => {
       return supertest(app)
         .post('/api/mealplan')
         .send({
-            item_name: 'eggs',
+            item_name: 'stuff',
             qty: 2,
             unit: 'each'
           })
@@ -750,7 +750,7 @@ describe('mealplan endpoints', () => {
         .then(() => {
           return supertest(app)
             .get('/api/mealplan')
-            .expect(200, {items: [{id:1, item_name: 'eggs', qty: 2, unit: 'each'}], recipes: []})
+            .expect(200, {items: [{id:1, item_name: 'stuff', qty: 2, unit: 'each'}], recipes: []})
         })
     })
     it('adds a recipe and returns 201 with no content', () => {

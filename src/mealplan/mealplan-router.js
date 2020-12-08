@@ -30,9 +30,10 @@ mealplanRouter
             .then(item => {
                 let item_id;
                 if(!item){
-                    InventoryService.addItem(req.app.get('db'), item_name)
+                    let item = {item_name: item_name}
+                    InventoryService.addItem(req.app.get('db'), item)
                         .then(id => {
-                            item_id = id;
+                            item_id = Number(id);
                             let mealplanItem = {item_id, qty, unit};
                             MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
                                 .then(id => {
