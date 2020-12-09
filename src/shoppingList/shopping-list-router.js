@@ -27,7 +27,7 @@ shoppingListRouter
                             .then(recipeItems => {
                                 let promises = recipeItems.map(item => {
                                     let index = items.indexOf(items.filter(i => i.id === item.item_id)[0])
-                                    if(index){
+                                    if(index >= 0){
                                         if(items[index].unit !== item.unit){
                                             UnitService.convertValue(item, items[index].unit)
                                                 .then(value => {
@@ -54,7 +54,7 @@ shoppingListRouter
                                     })
                                     recipeItems.map(item => {
                                         let index = items.indexOf(items.filter(i => i.item_id === item.item_id)[0]);
-                                        if(index !== undefined){
+                                        if(index >= 0){
                                            item.qty = items[index].qty + item.qty;
                                            items[index].qty = 0;
                                            return item
