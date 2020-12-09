@@ -29,15 +29,13 @@ shoppingListRouter
                                     let index = items.indexOf(items.filter(i => i.id === item.item_id)[0])
                                     if(index >= 0){
                                         if(items[index].unit !== item.unit){
-                                            UnitService.convertValue(item, items[index].unit)
-                                                .then(value => {
-                                                    let newItem = {
-                                                        item_id: item.item_id,
-                                                        qty: value,
-                                                        unit: items[index].unit
-                                                    }
-                                                    return newItem
-                                                })
+                                            let value = UnitService.convertValue(item, items[index].unit)
+                                                let newItem = {
+                                                    item_id: item.item_id,
+                                                    qty: value,
+                                                    unit: items[index].unit
+                                                }
+                                                return newItem
                                         }
                                         return item
                                     }
@@ -73,15 +71,13 @@ shoppingListRouter
                                             let index = inventory.indexOf(inventory.filter(i => i.item_id === item.item_id)[0]);
                                                 if(index >= 0){
                                                     if(inventory[index].unit !== item.unit){
-                                                        UnitService.convertValue(item, inventory[index].unit)
-                                                            .then(value => {
-                                                                let newItem = {
-                                                                    item_id: item.item_id,
-                                                                    qty: value - inventory[index].qty,
-                                                                    unit: inventory[index].unit
-                                                                }
-                                                                return newItem
-                                                            })
+                                                        let value = UnitService.convertValue(item, inventory[index].unit)
+                                                            let newItem = {
+                                                                item_id: item.item_id,
+                                                                qty: value - inventory[index].qty,
+                                                                unit: inventory[index].unit
+                                                            }
+                                                            return newItem
                                                     }
                                                     let newItem = {
                                                         item_id: item.item_id,

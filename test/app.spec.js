@@ -913,17 +913,24 @@ describe('mealplan endpoints', () => {
             })
         })
         const mealplanArray = makeMealplanArray();
+        mealplanArray[2].unit = 'ounces';
+        mealplanArray.push(
+          {
+            item_id: 3,
+            qty: 3,
+            unit: 'quarts'
+          })
         beforeEach('Seed mealplan table', () => {
           return db.insert(mealplanArray).into('mealplan')
         })
         it('should return 201 with the correct shopping list', () => {
           return supertest(app)
             .post('/api/shopping-list')
-            .expect(201, [{ 
-              item_id: 2,
-              qty: 3, 
-              unit: 'cups'
-            }])
+            .expect(201, [
+              { item_id: 2, qty: 10, unit: 'ounces' },
+              { item_id: 3, qty: 4, unit: 'cups' }
+            ]
+            )
         })
       })
     })
