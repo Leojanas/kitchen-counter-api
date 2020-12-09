@@ -32,7 +32,18 @@ const MealplanService = {
     clearMealplan(knex){
         return knex('mealplan').truncate()
     },
-
+    getRecipeItemsForShoppinglist(knex){
+        return knex('mealplan')
+            .join('recipe_ingredients', 'mealplan.recipe_id', '=', 'recipe_ingredients.recipe_id')
+            .select('recipe_ingredients.item_id', 'recipe_ingredients.qty', 'recipe_ingredients.unit')
+            .whereNotNull('mealplan.recipe_id')
+    },
+    getItemsForShoppingList(knex){
+        return knex('mealplan')
+        .join('items', 'mealplan.item_id', '=', 'items.id')
+        .select('items.id', 'mealplan.qty', 'mealplan.unit')
+        .whereNotNull('mealplan.item_id')
+    }
 }
 
 module.exports = MealplanService;

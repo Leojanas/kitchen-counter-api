@@ -7,6 +7,7 @@ const makeRecipesArray = require('./recipes.fixtures');
 const makeIngredientsArray = require('./recipe-ingredients.fixtures');
 const makeMealplanArray = require('./mealplan.fixtures');
 const { expect } = require('chai');
+const makeShoppingListArray = require('./shopping-list.fixtures');
 
 let db;
   
@@ -825,6 +826,141 @@ describe('mealplan endpoints', () => {
             return supertest(app)
               .get('/api/mealplan')
               .expect(200, {items: [], recipes: []})
+          })
+      })
+    })
+  })
+
+  describe('shopping list endpoints', () => {
+    describe('GET /api/shopping-list', () => {
+      context('given no data', () => {
+        it('should return 200 and []', () => {
+          return supertest(app)
+            .get('/api/shopping-list')
+            .expect(200, [])
+        })
+      })
+      context('given a shopping list', () => {
+        const itemsArray = makeItemsArray();
+        beforeEach('seed items table', () => {
+          return db.insert(itemsArray).into('items')
+        })
+        const inventoryArray = makeInventoryArray();
+        beforeEach('Seed inventory table', () => {
+          return db.insert(inventoryArray).into('inventory')
+        })
+        const recipesArray = makeRecipesArray();
+        const ingredientsArray = makeIngredientsArray();
+        beforeEach('Seed recipes table', () => {
+          return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+        })
+        const mealplanArray = makeMealplanArray();
+        beforeEach('Seed mealplan table', () => {
+          return db.insert(mealplanArray).into('mealplan')
+        })
+        const shoppingListArray = makeShoppingListArray();
+        beforeEach('Seed shopping list', () => {
+          return db.insert(shoppingListArray).into('shopping_list')
+        })
+        it('should return 200 and the shopping list', () => {
+          return supertest(app)
+            .get('/api/shopping-list')
+            .expect(200, [
+              {
+                  item_id: 1,
+                  item_name: 'eggs',
+                  qty: 4,
+                  unit: 'each'
+              },
+              {
+                  item_id: 3,
+                  item_name: 'sugar',
+                  qty: 2,
+                  unit: 'pounds'
+              }
+          ])
+        })       
+      })
+    })
+    describe('POST /api/shopping-list', () => {
+      context('given no mealplan', () => {
+        it('should return 200 and []', () => {
+          return supertest(app)
+            .post('/api/shopping-list')
+            .expect(201, [])
+        })
+      })
+      context('given a mealplan and inventory', () => {
+        const itemsArray = makeItemsArray();
+        beforeEach('seed items table', () => {
+        return db.insert(itemsArray).into('items')
+        })
+        const inventoryArray = makeInventoryArray();
+        beforeEach('Seed inventory table', () => {
+          return db.insert(inventoryArray).into('inventory')
+        })
+        const recipesArray = makeRecipesArray();
+        const ingredientsArray = makeIngredientsArray();
+        beforeEach('Seed recipes table', () => {
+          return db.insert(recipesArray).into('recipes')
+            .then(() => {
+              return db.insert(ingredientsArray)
+              .into('recipe_ingredients')
+            })
+        })
+        const mealplanArray = makeMealplanArray();
+        beforeEach('Seed mealplan table', () => {
+          return db.insert(mealplanArray).into('mealplan')
+        })
+        it('should return 201 with the correct shopping list', () => {
+          return supertest(app)
+            .post('/api/shopping-list')
+            .expect(201, [{ 
+              item_id: 2,
+              qty: 3, 
+              unit: 'cups'
+            }])
+        })
+      })
+    })
+    describe('DELETE /api/shopping-list', () => {
+      const itemsArray = makeItemsArray();
+      beforeEach('seed items table', () => {
+      return db.insert(itemsArray).into('items')
+      })
+      const inventoryArray = makeInventoryArray();
+      beforeEach('Seed inventory table', () => {
+        return db.insert(inventoryArray).into('inventory')
+      })
+      const recipesArray = makeRecipesArray();
+      const ingredientsArray = makeIngredientsArray();
+      beforeEach('Seed recipes table', () => {
+        return db.insert(recipesArray).into('recipes')
+          .then(() => {
+            return db.insert(ingredientsArray)
+            .into('recipe_ingredients')
+          })
+      })
+      const mealplanArray = makeMealplanArray();
+      beforeEach('Seed mealplan table', () => {
+        return db.insert(mealplanArray).into('mealplan')
+      })
+      const shoppingListArray = makeShoppingListArray();
+      beforeEach('Seed shopping list', () => {
+        return db.insert(shoppingListArray).into('shopping_list')
+      })
+      it('should return 204 and clear the shopping list', () => {
+        return supertest(app)
+          .delete('/api/shopping-list')
+          .expect(204)
+          .then(() => {
+            return supertest(app)
+              .get('/api/shopping-list')
+              .expect(200, [])
           })
       })
     })

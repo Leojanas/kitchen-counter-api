@@ -7,6 +7,7 @@ const {NODE_ENV} = require('./config')
 const inventoryRouter = require('./inventory/inventory-router');
 const recipeRouter = require('./recipes/recipe-router');
 const mealplanRouter = require('./mealplan/mealplan-router');
+const shoppingListRouter = require('./shoppingList/shopping-list-router');
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.use(cors());
 app.use('/api/inventory', inventoryRouter)
 app.use('/api/recipes', recipeRouter)
 app.use('/api/mealplan', mealplanRouter)
+app.use('/api/shopping-list', shoppingListRouter)
 
 app.use(function errorHandler(error, req, res, next) {
    let response

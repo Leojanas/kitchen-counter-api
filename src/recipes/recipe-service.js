@@ -8,6 +8,7 @@ const RecipeService = {
             .join('recipe_ingredients', 'items.id', '=', 'recipe_ingredients.item_id')
             .where('recipe_ingredients.recipe_id', id)
             .select('items.item_name', 'recipe_ingredients.qty', 'recipe_ingredients.unit')
+            .orderBy('recipe_ingredients.item_id')
     },
     addRecipe(knex, recipe){
         return knex.insert(recipe).into('recipes').returning('*').then(rows => {return rows[0]})

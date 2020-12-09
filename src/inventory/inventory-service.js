@@ -53,6 +53,11 @@ const InventoryService = {
         return knex('inventory')
             .where('id', id)
             .delete()
+    },
+    getInventoryForShopping(knex){
+        return knex('inventory')
+            .join('items', 'inventory.item_id', '=', 'items.id')
+            .select('inventory.item_id', 'inventory.qty', 'inventory.unit')
     }
 
 }
