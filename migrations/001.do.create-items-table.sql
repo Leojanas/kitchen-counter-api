@@ -3,7 +3,7 @@ DROP TYPE IF EXISTS unit;
 
 CREATE TYPE unit AS ENUM (
     'pounds', 'ounces', 'cups', 'pints', 'gallons', 'teaspoons', 'tablespoons',
-    'each', 'cans'
+    'each', 'quarts'
 );
 
 CREATE TABLE items (
