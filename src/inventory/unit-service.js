@@ -20,10 +20,12 @@ const UnitService = {
     combineAmounts(array){
         let unit = array[0].unit;
         let values = array.map(item => {
-                return this.convertValue(item, unit)
+                let value =  this.convertValue(item, unit)
+                return value
         })
-        let qty = sum(values)
-        return {qty, unit}
+        let qty = values.reduce((a,b)=> a+b, 0);
+        let total = {qty, unit}
+        return total
 
     }
 }
