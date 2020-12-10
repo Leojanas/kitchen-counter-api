@@ -17,6 +17,15 @@ const UnitService = {
         return newValue
 
     },
+    combineAmounts(array){
+        let unit = array[0].unit;
+        let values = array.map(item => {
+                return this.convertValue(item, unit)
+        })
+        let qty = sum(values)
+        return {qty, unit}
+
+    }
 }
 
 module.exports = UnitService;
