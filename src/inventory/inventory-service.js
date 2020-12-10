@@ -37,6 +37,11 @@ const InventoryService = {
 
 
     },
+    addMultipleInventoryItems(knex, items){
+        return knex 
+            .insert(items)
+            .into('inventory')
+    },
     getInventoryItemById(knex, id){
         return knex('inventory')
             .join('items', 'inventory.item_id', '=', 'items.id')

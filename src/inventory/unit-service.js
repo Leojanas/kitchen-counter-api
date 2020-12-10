@@ -4,7 +4,6 @@ const weightConversions = [1,16];
 const weightUnits = ['pounds', 'ounces'];
 const UnitService = {
     convertValue(item, unit){
-        console.log('inside unit conversion')
         let originalValue = item.qty;
         let originalUnit = item.unit;
         let newValue = originalValue;
@@ -15,7 +14,6 @@ const UnitService = {
         }else{
             return 'Not a valid set of units for conversion'
         }
-        console.log(newValue)
         return newValue
 
     },

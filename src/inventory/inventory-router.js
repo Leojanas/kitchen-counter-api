@@ -28,6 +28,27 @@ inventoryRouter
         .catch(next)
     })
     .post(jsonParser, (req,res,next) => {
+        if(Array.isArray(req.body)){
+            let items = [];
+            for(let i=0;i<req.body.length;i++){
+                let {item_id, qty, expiration, unit} = req.body[i];
+                if(!item_id || !qty || !unit){
+                    return res.status(400).send({
+                        error: {message: 'Invalid data'}
+                    })
+                }
+                if(expiration === ""){
+                    expiration = null;
+                }
+                items.push({item_id, qty, expiration, unit}) 
+            }
+            InventoryService.addMultipleInventoryItems(req.app.get('db'), items)
+            .then(() => {
+                return res.status(201).end()
+            })
+            .catch(next)
+
+        }else{
         let {item_name, qty, expiration, unit} = req.body;
         if(!item_name || !qty || !unit){
             return res.status(400).send({
@@ -80,6 +101,7 @@ inventoryRouter
                 }
             })
             .catch(next)
+        }
     })
     .patch(jsonParser, (req,res,next) => {
         //this endpoint updates the inventory when a recipe is used
