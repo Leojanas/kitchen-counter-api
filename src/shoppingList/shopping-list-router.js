@@ -21,6 +21,14 @@ shoppingListRouter
                     .then(items => {
                         MealplanService.getRecipeItemsForShoppinglist(req.app.get('db'))
                             .then(recipeItems => {
+                                recipeItems = recipeItems.map(item => {
+                                    return {
+                                        item_id: item.item_id,
+                                        qty: item.qty*item.recipe_qty,
+                                        unit: item.unit
+                                    }
+                                })
+                                console.log(recipeItems)
                                 let promises = recipeItems.map(item => {
                                     let index = items.indexOf(items.filter(i => i.id === item.item_id)[0])
                                     if(index >= 0){
@@ -63,6 +71,7 @@ shoppingListRouter
                                     })
                                     InventoryService.getInventoryForShopping(req.app.get('db'))
                                     .then(inventory => {
+                                        console.log('got inventory')
                                         let promises = recipeItems.map(item => {
                                             let instances =inventory.filter(i => i.item_id === item.item_id);
                                             if(instances.length === 0){
@@ -85,30 +94,14 @@ shoppingListRouter
                                                 }
                                                 return newItem
                                             }
-                                            if(instances.length > 1){
-                                                let total = UnitService.combineAmounts(instances)
-                                                if(total.unit !== item.unit){
-                                                    let value = UnitService.convertValue(item, total.unit)
-                                                        let newItem = {
-                                                            item_id: item.item_id,
-                                                            qty: value - total.qty,
-                                                            unit: total.unit
-                                                        }
-                                                        return newItem
-                                                }
-                                                let newItem = {
-                                                    item_id: item.item_id,
-                                                    qty: item.qty - total.qty,
-                                                    unit: total.unit
-                                                }
-                                                return newItem
-                                            }
                                         })
                                         Promise.all(promises)
                                         .then(finalList => {
+                                            console.log('got final list')
                                             finalList = finalList.filter(item => {
                                                 return item.qty > 0;
                                             })
+                                            console.log(finalList)
                                             ShoppingListService.addShoppingList(req.app.get('db'), finalList)
                                             .then(list => {
                                                 return res.status(201).json(list)

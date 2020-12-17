@@ -984,12 +984,6 @@ describe('shopping list endpoints', () => {
       return db.insert(itemsArray).into('items')
       })
       const inventoryArray = makeInventoryArray();
-      inventoryArray.push({
-        id: 3,
-        item_id: 3,
-        qty: 2,
-        unit: 'ounces'
-      })
       beforeEach('Seed inventory table', () => {
         return db.insert(inventoryArray).into('inventory')
       })
@@ -1006,9 +1000,8 @@ describe('shopping list endpoints', () => {
       mealplanArray[2].unit = 'ounces';
       mealplanArray.push(
         {
-          item_id: 3,
-          qty: 3,
-          unit: 'quarts'
+          recipe_id: 1,
+          qty: 1
         })
       beforeEach('Seed mealplan table', () => {
         return db.insert(mealplanArray).into('mealplan')
@@ -1018,7 +1011,7 @@ describe('shopping list endpoints', () => {
           .post('/api/shopping-list')
           .expect(201, [
             { item_id: 2, qty: 10, unit: 'ounces' },
-            { item_id: 3, qty: 3.75, unit: 'cups' }
+            { item_id: 2, qty: 8, unit: 'ounces' }
           ])
       })
     })
