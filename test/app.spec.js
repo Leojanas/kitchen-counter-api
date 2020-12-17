@@ -730,7 +730,7 @@ describe('mealplan endpoints', () => {
           .get('/api/mealplan')
           .expect(200, {
             recipes: [
-              { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
+              { id: 1, qty: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
             ],
             items: [
               { id: 2, item_name: 'eggs', qty: 2, unit: 'each' },
@@ -790,7 +790,7 @@ describe('mealplan endpoints', () => {
       .then(() => {
         return supertest(app)
           .get('/api/mealplan')
-          .expect(200, {items: [], recipes: [{id: 1, recipe_id: 1, category: 'main', recipe_name: 'Meatloaf'}]})
+          .expect(200, {items: [], recipes: [{id: 1, qty: 1, recipe_id: 1, category: 'main', recipe_name: 'Meatloaf'}]})
       })
     })
     context('given recipes in mealplan', () => {
@@ -808,7 +808,7 @@ describe('mealplan endpoints', () => {
               .get('/api/mealplan')
               .expect(200, {
                 recipes: [
-                  { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
+                  { id: 1, qty: 2, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
                 ],
                 items: [
                   { id: 2, item_name: 'eggs', qty: 2, unit: 'each' },
@@ -860,7 +860,7 @@ describe('mealplan endpoints', () => {
               .get('/api/mealplan')
               .expect(200, {
                 recipes: [
-                  { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
+                  { id: 1, qty: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
                 ],
                 items: [
                   { id: 3, item_name: 'butter', qty: 2, unit: 'cups' }
