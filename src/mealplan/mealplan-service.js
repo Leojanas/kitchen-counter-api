@@ -15,7 +15,7 @@ const MealplanService = {
     getMealplanRecipes(knex){
         return knex('mealplan')
             .join('recipes', 'mealplan.recipe_id', '=', 'recipes.id')
-            .select('mealplan.id', 'mealplan.recipe_id', 'recipes.recipe_name', 'recipes.category')
+            .select('mealplan.id', 'mealplan.recipe_id', 'recipes.recipe_name', 'recipes.category', 'mealplan.qty')
             .whereNotNull('mealplan.recipe_id')
     },
     getMealplanItems(knex){
@@ -46,7 +46,7 @@ const MealplanService = {
     getRecipeItemsForShoppinglist(knex){
         return knex('mealplan')
             .join('recipe_ingredients', 'mealplan.recipe_id', '=', 'recipe_ingredients.recipe_id')
-            .select('recipe_ingredients.item_id', 'recipe_ingredients.qty', 'recipe_ingredients.unit')
+            .select('recipe_ingredients.item_id', 'recipe_ingredients.qty', 'recipe_ingredients.unit', 'mealplan.qty')
             .whereNotNull('mealplan.recipe_id')
     },
     getItemsForShoppingList(knex){
