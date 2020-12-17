@@ -1,14 +1,11 @@
 const express = require('express');
-const xss = require('xss');
 const ShoppingListService = require('./shopping-list-service');
-const path = require('path');
 const InventoryService = require('../inventory/inventory-service');
 const MealplanService = require('../mealplan/mealplan-service');
-const unitService = require('../inventory/unit-service');
+const UnitService = require('../inventory/unit-service');
 const UnitService = require('../inventory/unit-service');
 
 const shoppingListRouter = express.Router();
-const jsonParser = express.json();
 
 shoppingListRouter
     .route('/')

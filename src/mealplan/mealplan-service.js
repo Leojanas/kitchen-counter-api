@@ -6,6 +6,11 @@ const MealplanService = {
             .where('id', id)
             .select('*')
     },
+    getMealplanItemByRecipeId(knex, recipe_id){
+        return knex('mealplan')
+            .where('recipe_id', recipe_id)
+            .select('*')
+    },
     getMealplanRecipes(knex){
         return knex('mealplan')
             .join('recipes', 'mealplan.recipe_id', '=', 'recipes.id')
@@ -23,6 +28,11 @@ const MealplanService = {
             .insert(item)
             .into('mealplan')
             .returning('id')
+    },
+    updateMealplanQty(knex, item, id){
+        return knex('mealplan')
+            .where('recipe_id', id)
+            .update(item)
     },
     removeMealplanItemById(knex, id){
         return knex('mealplan')

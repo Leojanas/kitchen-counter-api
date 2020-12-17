@@ -53,10 +53,20 @@ mealplanRouter
                 })
         }else{
             let mealplanItem = {recipe_id, qty, unit};
-            MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
-                .then(id => {
-                        return res.status(201).end()
+            MealplanService.getMealplanItemByRecipeId(req.app.get('db'), mealplanItem.recipe_id)
+                .then(item => {
+                    if(item){
+                        let qty = item.qty+1;
+                        let item = {...item, qty}
+                        MealplanService.updateMealplanQty(req.app.get('db'),item,item.recipe_id)
+                    }else{
+                        MealplanService.addMealplanItem(req.app.get('db'), mealplanItem)
+                        .then(() => {
+                                return res.status(201).end()
+                        })
+                    }
                 })
+
                 .catch(next)
         }
 
