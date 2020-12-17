@@ -85,7 +85,7 @@ inventoryRouter
                             const inventoryItem = {
                                 id: item.id,
                                 item_id: item_id,
-                                qty: inputItem.qty + item.qty,
+                                qty: Number(Number(inputItem.qty) + Number(item.qty)),
                                 unit: item.unit
                             }
                             InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem, inventoryItem.id)
