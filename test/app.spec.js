@@ -43,15 +43,13 @@ describe('inventory Endpoints', () => {
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
           qty: inventoryArray[0].qty,
-          unit: inventoryArray[0].unit,
-          expiration: inventoryArray[0].expiration
+          unit: inventoryArray[0].unit
         },
         {
           id: inventoryArray[1].id,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
-          unit: inventoryArray[1].unit,
-          expiration: inventoryArray[1].expiration
+          unit: inventoryArray[1].unit
         }
       ]
       beforeEach('Seed inventory table', () => {
@@ -90,12 +88,11 @@ describe('inventory Endpoints', () => {
         .send({
           item_name: 'carrots',
           qty: 4,
-          unit: 'each',
-          expiration: ""
+          unit: 'each'
         })
         .expect(201)
         .expect(res => {
-          expect(res.body).to.eql({id: 1, item_name: 'carrots', qty: 4, unit: 'each', expiration: null})
+          expect(res.body).to.eql({id: 1, item_name: 'carrots', qty: 4, unit: 'each'})
           expect(res.headers.location).to.eql('/api/inventory/1')
         })
     })
@@ -103,8 +100,7 @@ describe('inventory Endpoints', () => {
       const inventoryItem = {
         item_name: 'butter',
         qty: 8,
-        unit: 'cups',
-        expiration: '2020-12-25T07:00:00.000Z'
+        unit: 'cups'
       }
       return supertest(app)
         .post('/api/inventory')
@@ -135,8 +131,8 @@ describe('inventory Endpoints', () => {
           return supertest(app)
             .get('/api/inventory')
             .expect(200, [
-              { id: 1, item_name: 'eggs', qty: 2, unit: 'each', expiration: null },
-              { id: 2, item_name: 'butter', qty: 5, unit: 'cups', expiration: null }
+              { id: 1, item_name: 'eggs', qty: 2, unit: 'each'},
+              { id: 2, item_name: 'butter', qty: 5, unit: 'cups'}
             ])
         })
     })
@@ -226,15 +222,13 @@ describe('inventory Endpoints', () => {
           id: 1,
           item_name: 'eggs',
           qty: 8,
-          unit: 'each',
-          expiration: '2021-01-05T07:00:00.000Z'
+          unit: 'each'
         },
         {
           id: 2,
           item_name: 'sugar',
           qty: 6,
-          unit: 'cups',
-          expiration: '2021-01-05T07:00:00.000Z'
+          unit: 'cups'
         }
       
       ]
@@ -276,8 +270,7 @@ describe('inventory/:id endpoints', () => {
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
           qty: inventoryArray[0].qty,
-          unit: inventoryArray[0].unit,
-          expiration: inventoryArray[0].expiration
+          unit: inventoryArray[0].unit
         }
         return supertest(app)
           .get('/api/inventory/1')
@@ -317,28 +310,24 @@ describe('inventory/:id endpoints', () => {
         const item = {
           id: 1,
           item_id: 1,
-          qty: 8,
-          expiration: '2020-12-05T07:00:00.000Z'
+          qty: 8
         }  
         const inventory = [{
           id: inventoryArray[0].id,
           item_name: itemsArray[0].item_name,
           qty: 8,
-          unit: inventoryArray[0].unit,
-          expiration: null
+          unit: inventoryArray[0].unit
         },
         {
           id: inventoryArray[1].id,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
-          unit: inventoryArray[1].unit,
-          expiration: inventoryArray[1].expiration
+          unit: inventoryArray[1].unit
         }]
         return supertest(app)
           .put('/api/inventory/1')
           .send({
-            qty: 8,
-            expiration: ''
+            qty: 8
           })
           .expect(204)
           .then(() => {
@@ -373,8 +362,7 @@ describe('inventory/:id endpoints', () => {
           id: inventoryArray[1].id,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
-          unit: inventoryArray[1].unit,
-          expiration: inventoryArray[1].expiration
+          unit: inventoryArray[1].unit
         }]
         return supertest(app)
           .delete('/api/inventory/1')

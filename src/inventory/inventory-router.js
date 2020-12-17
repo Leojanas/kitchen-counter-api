@@ -11,8 +11,7 @@ const sanitizeItem = item => ({
         id: item.id,
         item_name: xss(item.item_name),
         qty: item.qty,
-        unit: item.unit,
-        expiration: item.expiration
+        unit: item.unit
 })
 
 inventoryRouter
@@ -31,16 +30,13 @@ inventoryRouter
         if(Array.isArray(req.body)){
             let items = [];
             for(let i=0;i<req.body.length;i++){
-                let {item_id, qty, expiration, unit} = req.body[i];
+                let {item_id, qty, unit} = req.body[i];
                 if(!item_id || !qty || !unit){
                     return res.status(400).send({
                         error: {message: 'Invalid data'}
                     })
                 }
-                if(expiration === ""){
-                    expiration = null;
-                }
-                items.push({item_id, qty, expiration, unit}) 
+                items.push({item_id, qty, unit}) 
             }
             InventoryService.addMultipleInventoryItems(req.app.get('db'), items)
             .then(() => {
@@ -49,16 +45,13 @@ inventoryRouter
             .catch(next)
 
         }else{
-        let {item_name, qty, expiration, unit} = req.body;
+        let {item_name, qty, unit} = req.body;
         if(!item_name || !qty || !unit){
             return res.status(400).send({
                 error: {message: 'Invalid data'}
             })
         }
-        if(expiration === ""){
-            expiration = null;
-        }
-        const inputItem = {item_name, qty, expiration, unit}
+        const inputItem = {item_name, qty, unit}
         InventoryService.getItemByName(req.app.get('db'), item_name)
             .then(item => {
                 let item_id;
@@ -69,8 +62,7 @@ inventoryRouter
                             const inventoryItem = {
                                 item_id: item_id,
                                 qty: inputItem.qty,
-                                unit: inputItem.unit,
-                                expiration: inputItem.expiration
+                                unit: inputItem.unit
                             }
                             InventoryService.addInventoryItem(req.app.get('db'), inventoryItem)
                                 .then(item => {
@@ -84,20 +76,39 @@ inventoryRouter
                         .catch(next) 
                 }else{
                     item_id = item.id;
-                    const inventoryItem = {
-                        item_id: item_id,
-                        qty: inputItem.qty,
-                        unit: inputItem.unit,
-                        expiration: inputItem.expiration
-                    }
-                    InventoryService.addInventoryItem(req.app.get('db'), inventoryItem)
-                        .then(item => {
-                            res
-                                .status(201)
-                                .location(path.posix.join(req.originalUrl + `/${item.id}`))
-                                .json(sanitizeItem(item))
-                        })
-                        .catch(next)
+                    InventoryService.getInventoryItemByItemId(req.app.get('db'), item_id)
+                    .then(item => {
+                        if(item){
+                            if(item.unit !== inputItem.unit){
+                                inputItem.qty = UnitService.convertValue(inputItem, item.unit)
+                            }
+                            const inventoryItem = {
+                                item_id: item_id,
+                                qty: inputItem.qty + item.qty,
+                                unit: item.unit
+                            }
+                            InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem)
+                            .then(() => {
+                                res.status(204).end()
+                            })
+
+                        }else{
+                            const inventoryItem = {
+                                item_id: item_id,
+                                qty: inputItem.qty,
+                                unit: inputItem.unit
+                            }
+                            InventoryService.addInventoryItem(req.app.get('db'), inventoryItem)
+                                .then(item => {
+                                    res
+                                        .status(201)
+                                        .location(path.posix.join(req.originalUrl + `/${item.id}`))
+                                        .json(sanitizeItem(item))
+                                })
+                                .catch(next)
+                        }
+                    })
+
                 }
             })
             .catch(next)
@@ -166,8 +177,10 @@ inventoryRouter
                                             id: newItem.id,
                                             item_id: item_id,
                                             qty: newItem.qty,
-                                            unit: newItem.unit,
-                                            expiration: newItem.expiration
+                                            unit: newItem.unit
+                                        }
+                                        if(inventoryItem.qty === 0){
+                                            return InventoryService.deleteInventoryItem(req.app.get('db'), inventoryItem.id)
                                         }
                                         return InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem, id)
                                     })
@@ -206,16 +219,13 @@ inventoryRouter
         res.json(sanitizeItem(res.item))
     })
     .put(jsonParser, (req,res,next) => {
-        let {qty, expiration, unit} = req.body;
-        if(!qty && !expiration && !unit){
+        let {qty, unit} = req.body;
+        if(!qty && !unit){
             return res.status(400).json({
                 error: {message: 'Must update at least one field'}
             })
         }
-        if(expiration === ""){
-            expiration = null;
-        }
-        const item = {id: res.item.id, qty, expiration, unit}
+        const item = {id: res.item.id, qty, unit}
         InventoryService.updateInventoryItem(req.app.get('db'), item, req.params.id)
             .then(() => {
                 res.status(204).end()
