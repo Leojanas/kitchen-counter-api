@@ -40,13 +40,13 @@ describe('inventory Endpoints', () => {
       const inventoryArray = makeInventoryArray();
       const outputArray = [
         {
-          id: inventoryArray[0].id,
+          id: 1,
           item_name: itemsArray[0].item_name,
           qty: inventoryArray[0].qty,
           unit: inventoryArray[0].unit
         },
         {
-          id: inventoryArray[1].id,
+          id: 2,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
           unit: inventoryArray[1].unit
@@ -158,6 +158,32 @@ describe('inventory Endpoints', () => {
                 { id: 2, item_name: 'sugar', qty: 8, unit: 'cups' }
               ])
           })
+      })
+      it('should add/update properly with an array passed in', () => {
+        return supertest(app)
+        .post('/api/inventory')
+        .send([
+          {
+            item_id: 1,
+            qty: 2,
+            unit: 'each'
+          },
+          {
+            item_id: 2,
+            qty: 5,
+            unit: 'cups'
+          }
+        ])
+        .expect(201)
+        .then(() => {
+          return supertest(app)
+            .get('/api/inventory')
+            .expect(200, [
+              { id: 1, item_name: 'eggs', qty: 14, unit: 'each' },
+              { id: 2, item_name: 'sugar', qty: 8, unit: 'cups' },
+              { id: 3, item_name: 'butter', qty: 5, unit: 'cups' }
+            ])
+        })
       })
       it('should adjust units properly', () => {
         return supertest(app)
@@ -309,7 +335,7 @@ describe('inventory/:id endpoints', () => {
       })
       it('should return the item', () => {
         const item = {
-          id: inventoryArray[0].id,
+          id: 1,
           item_name: itemsArray[0].item_name,
           qty: inventoryArray[0].qty,
           unit: inventoryArray[0].unit
@@ -355,13 +381,13 @@ describe('inventory/:id endpoints', () => {
           qty: 8
         }  
         const inventory = [{
-          id: inventoryArray[0].id,
+          id: 1,
           item_name: itemsArray[0].item_name,
           qty: 8,
           unit: inventoryArray[0].unit
         },
         {
-          id: inventoryArray[1].id,
+          id: 2,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
           unit: inventoryArray[1].unit
@@ -401,7 +427,7 @@ describe('inventory/:id endpoints', () => {
         })
       it('should delete the item and return 204', () => {
         const inventory =  [{
-          id: inventoryArray[1].id,
+          id: 2,
           item_name: itemsArray[2].item_name,
           qty: inventoryArray[1].qty,
           unit: inventoryArray[1].unit

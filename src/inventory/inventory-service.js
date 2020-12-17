@@ -34,8 +34,6 @@ const InventoryService = {
                 .where('inventory.id', id)
                 .first()
             })
-
-
     },
     addMultipleInventoryItems(knex, items){
         return knex 

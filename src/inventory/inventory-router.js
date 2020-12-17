@@ -29,21 +29,54 @@ inventoryRouter
     .post(jsonParser, (req,res,next) => {
         if(Array.isArray(req.body)){
             let items = [];
-            for(let i=0;i<req.body.length;i++){
-                let {item_id, qty, unit} = req.body[i];
+            let promises = req.body.map(i => {
+                let {item_id, qty, unit} = i;
                 if(!item_id || !qty || !unit){
                     return res.status(400).send({
                         error: {message: 'Invalid data'}
                     })
                 }
-                items.push({item_id, qty, unit}) 
-            }
-            InventoryService.addMultipleInventoryItems(req.app.get('db'), items)
-            .then(() => {
-                return res.status(201).end()
+                return InventoryService.getInventoryItemByItemId(req.app.get('db'),item_id)
+                .then(item => {
+                    if(item){
+                        if(item.unit !== unit){
+                            qty = UnitService.convertValue(i, item.unit)
+                        }
+                        const inventoryItem = {
+                            id: item.id,
+                            item_id: item_id,
+                            qty: Number(qty) + Number(item.qty),
+                            unit: item.unit
+                        }
+                        return InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem, inventoryItem.id)
+                    }
+                    else{
+                        items.push(i)
+                        return
+                    }
+                })
             })
-            .catch(next)
+            Promise.all(promises)
+            .then(() => {
+                InventoryService.getInventory(req.app.get('db'))
+                .then(inventory => {
+                    if(items.length === 1){
+                        InventoryService.addInventoryItem(req.app.get('db'), items[0])
+                        .then(() => {
+                            return res.status(201).end()
+                        })
+                        .catch(next)
+                    }else{
+                        InventoryService.addMultipleInventoryItems(req.app.get('db'), items)
+                        .then(() => {
+                            return res.status(201).end()
+                        })
+                        .catch(next)
+                    }
 
+                })
+
+            })
         }else{
         let {item_name, qty, unit} = req.body;
         if(!item_name || !qty || !unit){
