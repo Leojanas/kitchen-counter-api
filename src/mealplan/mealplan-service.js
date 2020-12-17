@@ -10,6 +10,7 @@ const MealplanService = {
         return knex('mealplan')
             .where('recipe_id', recipe_id)
             .select('*')
+            .first()
     },
     getMealplanRecipes(knex){
         return knex('mealplan')
@@ -31,7 +32,7 @@ const MealplanService = {
     },
     updateMealplanQty(knex, item, id){
         return knex('mealplan')
-            .where('recipe_id', id)
+            .where('id', id)
             .update(item)
     },
     removeMealplanItemById(knex, id){

@@ -793,6 +793,32 @@ describe('mealplan endpoints', () => {
           .expect(200, {items: [], recipes: [{id: 1, recipe_id: 1, category: 'main', recipe_name: 'Meatloaf'}]})
       })
     })
+    context('given recipes in mealplan', () => {
+      const mealplanArray = makeMealplanArray();
+      beforeEach('Seed mealplan table', () => {
+        return db.insert(mealplanArray).into('mealplan')
+      })
+      it('adjusts qty when a duplicate recipe is given', () => {
+        return supertest(app)
+          .post('/api/mealplan')
+          .send({recipe_id: 1, qty: 1})
+          .expect(201)
+          .then(() => {
+            return supertest(app)
+              .get('/api/mealplan')
+              .expect(200, {
+                recipes: [
+                  { id: 1, recipe_id: 1, recipe_name: 'Meatloaf', category: 'main' }
+                ],
+                items: [
+                  { id: 2, item_name: 'eggs', qty: 2, unit: 'each' },
+                  { id: 3, item_name: 'butter', qty: 2, unit: 'cups' }
+                ]
+              })
+          })
+      })
+    })
+
   })
 
   describe('DELETE /api/mealplan', () => {

@@ -3,7 +3,6 @@ const ShoppingListService = require('./shopping-list-service');
 const InventoryService = require('../inventory/inventory-service');
 const MealplanService = require('../mealplan/mealplan-service');
 const UnitService = require('../inventory/unit-service');
-const UnitService = require('../inventory/unit-service');
 
 const shoppingListRouter = express.Router();
 
