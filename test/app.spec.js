@@ -136,6 +136,48 @@ describe('inventory Endpoints', () => {
             ])
         })
     })
+    context('given items in inventory', () => {
+      const inventoryArray = makeInventoryArray();
+      beforeEach('Seed inventory table', () => {
+        return db.insert(inventoryArray).into('inventory')
+      })
+      it('should update the qty if the item is already in inventory', () => {
+        return supertest(app)
+          .post('/api/inventory')
+          .send(        {
+            item_name: 'eggs',
+            qty: 6,
+            unit: 'each'
+          })
+          .expect(204)
+          .then(() => {
+            return supertest(app)
+              .get('/api/inventory')
+              .expect(200, [
+                { id: 1, item_name: 'eggs', qty: 18, unit: 'each' },
+                { id: 2, item_name: 'sugar', qty: 8, unit: 'cups' }
+              ])
+          })
+      })
+      it('should adjust units properly', () => {
+        return supertest(app)
+          .post('/api/inventory')
+          .send(        {
+            item_name: 'sugar',
+            qty: 16,
+            unit: 'ounces'
+          })
+          .expect(204)
+          .then(() => {
+            return supertest(app)
+              .get('/api/inventory')
+              .expect(200, [
+                { id: 1, item_name: 'eggs', qty: 12, unit: 'each' },
+                { id: 2, item_name: 'sugar', qty: 10, unit: 'cups' }
+              ])
+          })
+      })
+    })
   })
   describe('PATCH /api/inventory', () => {
     beforeEach('seed items table', () => {

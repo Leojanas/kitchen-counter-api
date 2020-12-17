@@ -53,18 +53,13 @@ mealplanRouter
                 })
         }else{
             let mealplanItem = {recipe_id, qty, unit};
-            console.log(mealplanItem.recipe_id)
             MealplanService.getMealplanItemByRecipeId(req.app.get('db'), mealplanItem.recipe_id)
                 .then(item => {
-                    console.log(item)
                     if(item){
-                        console.log('inside if')
                         let qty = item.qty +1
                         item = {...item, qty}
-                        console.log(item)
                         MealplanService.updateMealplanQty(req.app.get('db'), item, item.id)
                         .then(() => {
-                            console.log('returned from service object')
                             return res.status(201).end()
                         })
                     }else{

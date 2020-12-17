@@ -83,13 +83,14 @@ inventoryRouter
                                 inputItem.qty = UnitService.convertValue(inputItem, item.unit)
                             }
                             const inventoryItem = {
+                                id: item.id,
                                 item_id: item_id,
                                 qty: inputItem.qty + item.qty,
                                 unit: item.unit
                             }
-                            InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem)
+                            InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem, inventoryItem.id)
                             .then(() => {
-                                res.status(204).end()
+                                return res.status(204).end()
                             })
 
                         }else{
@@ -100,7 +101,7 @@ inventoryRouter
                             }
                             InventoryService.addInventoryItem(req.app.get('db'), inventoryItem)
                                 .then(item => {
-                                    res
+                                    return res
                                         .status(201)
                                         .location(path.posix.join(req.originalUrl + `/${item.id}`))
                                         .json(sanitizeItem(item))
