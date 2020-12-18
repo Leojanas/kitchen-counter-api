@@ -51,15 +51,12 @@ inventoryRouter
                         return InventoryService.updateInventoryItem(req.app.get('db'), inventoryItem, inventoryItem.id)
                     }
                     else{
-                        items.push(i)
-                        return
+                        return items.push({item_id, qty, unit})
                     }
                 })
             })
             Promise.all(promises)
             .then(() => {
-                InventoryService.getInventory(req.app.get('db'))
-                .then(inventory => {
                     if(items.length === 1){
                         InventoryService.addInventoryItem(req.app.get('db'), items[0])
                         .then(() => {
@@ -73,9 +70,6 @@ inventoryRouter
                         })
                         .catch(next)
                     }
-
-                })
-
             })
         }else{
         let {item_name, qty, unit} = req.body;
