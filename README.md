@@ -8,7 +8,7 @@ The repo for the front end client is at https://github.com/Leojanas/kitchen-coun
 
 This was built with Node.js, Express.js, and PostgreSQL.
 
-##Summary
+## Summary
 
 This app allows the user to save and modify their grocery inventory.  They can also add, save, and edit recipes.  When they use a recipe, the ingredients are automatically deducted fro mtheir inventory.  They can also generate a mealplan from recipes or individual ingredients and use this mealplan to automatically generate a shopping list.  The shopping list will be for all ingredients needed for the mealplan after removing the ingredients currently in inventory.
 
