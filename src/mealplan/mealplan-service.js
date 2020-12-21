@@ -1,5 +1,3 @@
-const mealplanRouter = require("./mealplan-router")
-
 const MealplanService = {
     getMealplanItemById(knex, id){
         return knex('mealplan')

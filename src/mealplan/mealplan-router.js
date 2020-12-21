@@ -1,7 +1,5 @@
 const express = require('express');
-const xss = require('xss');
 const MealplanService = require('./mealplan-service');
-const path = require('path');
 const InventoryService = require('../inventory/inventory-service');
 const mealplanRouter = express.Router();
 const jsonParser = express.json();

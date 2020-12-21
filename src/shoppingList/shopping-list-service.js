@@ -16,7 +16,6 @@ const ShoppingListService = {
                     .select('*')
             })
     }
-
 }
 
 

@@ -1,7 +1,7 @@
 const express = require('express');
-const xss = require('xss');
 const RecipeService = require('./recipe-service');
 const path = require('path');
+const xss = require('xss');
 const InventoryService = require('../inventory/inventory-service');
 
 const recipeRouter = express.Router();

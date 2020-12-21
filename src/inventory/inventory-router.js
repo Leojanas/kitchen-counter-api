@@ -258,6 +258,7 @@ inventoryRouter
             .then(() => {
                 res.status(204).end()
             })
+            .catch(next)
         
     })
     .delete((req,res,next) => {
